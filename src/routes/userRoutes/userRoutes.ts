@@ -6,29 +6,18 @@ import type { UserLoginInput, UserRegisterInput } from "./userSchemas";
 import { setSession } from "../../lib/setSession";
 import { UnauthorizedError } from "../../lib/appErrors";
 import { SESSION_COOKIE_NAME } from "../../util/sessionName";
+import userServices from "../../services/userServices";
 
 const userRoute = express.Router();
 
 userRoute.post("/register", async (req, res, next) => {
   try {
     const validatedData: UserRegisterInput = UserRegisterSchema.parse(req.body);
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(
-      validatedData.password,
-      saltRounds,
-    );
-    const user = await prisma.users.create({
-      data: {
-        email: validatedData.email,
-        passwordHash: hashedPassword,
-        username: validatedData.username,
-        birthdate: validatedData.birthdate,
-      },
-    });
+    const user = await userServices.registerService(validatedData);
 
     await setSession(req, user.id);
     res
-      .status(200)
+      .status(201)
       .json({ status: "SUCCESS", message: "Registered and Logged in" });
   } catch (err) {
     next(err);

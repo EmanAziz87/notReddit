@@ -5,9 +5,9 @@ import { Prisma } from "../../generated/prisma/client";
 
 export const globalErrorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     console.log("Prisma Error Code: -- ", err.code);
