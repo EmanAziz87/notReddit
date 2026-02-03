@@ -2,7 +2,10 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import request from "supertest";
 import app from "../../../index";
 import prisma from "../../../lib/prisma";
-import { checkSession } from "../../util/sessionHelper";
+import {
+  checkSessionIsDeleted,
+  checkSessionLoginExists,
+} from "../../util/sessionHelper";
 
 describe("User Routes", () => {
   beforeAll(async () => {
@@ -26,7 +29,7 @@ describe("User Routes", () => {
       expect(response.status).toBe(201);
       expect(response.body.status).toBe("SUCCESS");
       expect(response.body.message).toBe("Registered and Logged in");
-      checkSession(response);
+      checkSessionLoginExists(response);
     });
 
     it("should respond with a 409 if username already exists", async () => {
@@ -101,6 +104,10 @@ describe("User Routes", () => {
       });
     });
 
+    afterAll(async () => {
+      await prisma.users.deleteMany();
+    });
+
     it("should successfully login", async () => {
       const response = await request(app).post("/users/login").send({
         username: "testuser",
@@ -109,7 +116,7 @@ describe("User Routes", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe("SUCCESS");
-      checkSession(response);
+      checkSessionLoginExists(response);
     });
 
     it("should respond with 401 with invalid username or password", async () => {
@@ -120,7 +127,26 @@ describe("User Routes", () => {
 
       expect(response.status).toBe(401);
     });
+  });
 
-    it("should respond");
+  describe("POST /users/logout", () => {
+    beforeAll(async () => {});
+
+    afterAll(async () => {
+      await prisma.users.deleteMany();
+    });
+
+    it("should successfully logout", async () => {
+      await request(app).post("/users/register").send({
+        email: "test@example.com",
+        username: "testuser",
+        password: "password123",
+        birthdate: "1997-05-08",
+      });
+
+      const logoutResponse = await request(app).delete("/users/logout");
+
+      checkSessionIsDeleted(logoutResponse);
+    });
   });
 });
