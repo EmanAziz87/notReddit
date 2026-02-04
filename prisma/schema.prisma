@@ -61,11 +61,12 @@ model Conversations {
 
 model Users {
   id                  Int                   @id @default(autoincrement())
-  username            String  @unique
+  username            String                @unique
   passwordHash        String
   admin               Boolean               @default(false)
-  email               String @unique
+  email               String                @unique
   birthdate           DateTime
+  followingCount      Int                   @default(0)
   communityCreator    Communities[]
   comments            Comments[]
   followedCommunities FollowedCommunities[]
