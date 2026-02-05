@@ -9,6 +9,8 @@ import {
 
 describe("User Routes", () => {
   beforeAll(async () => {
+    await prisma.followedCommunities.deleteMany();
+    await prisma.communities.deleteMany();
     await prisma.users.deleteMany();
   });
 
@@ -53,8 +55,6 @@ describe("User Routes", () => {
       expect(secondRegistrationResponse.body.message).toBe(
         "Duplicate Already Exists",
       );
-
-      await prisma.users.deleteMany();
     });
 
     it("should respond with a 409 if email already exists", async () => {
@@ -78,7 +78,6 @@ describe("User Routes", () => {
       expect(secondRegistrationResponse.body.message).toBe(
         "Duplicate Already Exists",
       );
-      await prisma.users.deleteMany();
     });
 
     it("should respond with 400 invalid request error if registration input does not have the exact required properties", async () => {

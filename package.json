@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "test:ui": "vitest --ui",
+    "test:ui": "vitest --ui --no-file-parallelism",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {

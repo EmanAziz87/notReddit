@@ -79,8 +79,8 @@ model FollowedCommunities {
   userId      Int
   communityId Int
   followedAt  DateTime    @default(now())
-  community   Communities @relation(fields: [communityId], references: [id])
-  user        Users       @relation(fields: [userId], references: [id])
+  community   Communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, communityId])
 }
