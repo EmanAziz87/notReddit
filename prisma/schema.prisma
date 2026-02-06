@@ -9,9 +9,11 @@ datasource db {
 
 model Posts {
   id          Int         @id @default(autoincrement())
-  content     String
-  likes       Int
-  dislikes    Int
+  title       String
+  content     String 
+  mediaUrl    String[]
+  likes       Int @default(0)
+  dislikes    Int @default(0)
   authorId    Int
   communityId Int
   comments    Comments[]
