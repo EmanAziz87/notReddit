@@ -4,6 +4,6 @@ export type PostsWithRelations = Prisma.PostsGetPayload<{
   include: {
     community: true;
     comments: true;
-    author: { select: { username: true; admin: true } };
+    author: { select: { id: true; username: true; admin: true } };
   };
 }>;

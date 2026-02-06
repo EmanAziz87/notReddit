@@ -52,17 +52,33 @@ postRouter.get(
         validatedParams.postId!,
       );
 
-      res
-        .status(200)
-        .json({
-          status: "SUCCESS",
-          message: `Successfully grabbed post: ${fetchedPost.title}`,
-          fetchedPost,
-        });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: `Successfully grabbed post: ${fetchedPost.title}`,
+        fetchedPost,
+      });
     } catch (err) {
       next(err);
     }
   },
 );
+
+postRouter.get("/community/:communityId", async (req, res, next) => {
+  try {
+    const validatedParams: PostParams = PostParamsData.parse(req.params);
+    const [allFetchedPosts, communityName] =
+      await postServices.getAllPostsService(validatedParams.communityId);
+
+    res.status(200).json({
+      status: "SUCCESS",
+      message: `Successfully grabbed all posts from community: ${communityName}`,
+      allFetchedPosts,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+postRouter;
 
 export default postRouter;

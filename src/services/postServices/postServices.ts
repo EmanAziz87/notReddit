@@ -38,4 +38,26 @@ const getPostService = async (
   return await postFoundOrThrow(communityId, postId);
 };
 
-export default { createPostService, getPostService };
+const getAllPostsService = async (
+  communityId: number,
+): Promise<[PostsWithRelations[], string]> => {
+  const foundCommunity = await communityFoundOrThrow(communityId);
+
+  const allPosts = await prisma.posts.findMany({
+    include: {
+      community: true,
+      comments: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          admin: true,
+        },
+      },
+    },
+  });
+
+  return [allPosts, foundCommunity.name];
+};
+
+export default { createPostService, getPostService, getAllPostsService };
