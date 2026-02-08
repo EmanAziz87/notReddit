@@ -114,16 +114,23 @@ postRouter.put(
         validatedParams.postId!,
         req.session.userId!,
       );
-      res
-        .status(201)
-        .json({
-          status: "SUCCESS",
-          message: "Post successfully updated",
-          editedPost,
-        });
+      res.status(201).json({
+        status: "SUCCESS",
+        message: "Post successfully updated",
+        editedPost,
+      });
     } catch (err) {
       next(err);
     }
+  },
+);
+
+postRouter.put(
+  "/community/:communityId/post/:postId/like",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+    } catch (err) {}
   },
 );
 
