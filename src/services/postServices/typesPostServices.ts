@@ -7,3 +7,16 @@ export type PostsWithRelations = Prisma.PostsGetPayload<{
     author: { select: { id: true; username: true; admin: true } };
   };
 }>;
+
+export type FollowedCommunitiesWithRelations =
+  Prisma.FollowedCommunitiesGetPayload<{
+    include: {
+      community: {
+        include: {
+          posts: {
+            include: { author: { select: { username: true; admin: true } } };
+          };
+        };
+      };
+    };
+  }>;

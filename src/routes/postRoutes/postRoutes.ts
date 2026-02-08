@@ -3,8 +3,10 @@ import { isAuthenticated } from "../../middleware/isAuthenticated";
 import uploads from "../../middleware/s3storage";
 import {
   CreatePost,
+  EditPost,
   PostParamsData,
   type CreatePostInput,
+  type EditPostInput,
   type MulterS3File,
   type PostParams,
 } from "./postSchema";
@@ -63,6 +65,25 @@ postRouter.get(
   },
 );
 
+postRouter.get(
+  "/community/followed",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const allFetchedPostsFromFollowed =
+        await postServices.getAllPostsFollowedService(req.session.user!);
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Successfully grabbed all posts from all followed communities",
+        allFetchedPostsFromFollowed,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 postRouter.get("/community/:communityId", async (req, res, next) => {
   try {
     const validatedParams: PostParams = PostParamsData.parse(req.params);
@@ -79,14 +100,17 @@ postRouter.get("/community/:communityId", async (req, res, next) => {
   }
 });
 
-postRouter.get(
-  "/community/followed",
-  isAuthenticated,
+postRouter.put(
+  "/community/:communityId/post/:postId",
   async (req, res, next) => {
     try {
-      const allFetchedPostsFromFollowed =
-        postServices.getAllPostsFollowedService(req.session.user!);
-    } catch (err) {}
+      const validatedData: EditPostInput = EditPost.parse(req.body);
+      const validatedParams: PostParams = PostParamsData.parse(req.params);
+
+      res.status(201).json({ status: "SUCCESS", message: "" });
+    } catch (err) {
+      next(err);
+    }
   },
 );
 

@@ -6,7 +6,10 @@ import {
 } from "../../lib/prismaHelpers";
 import type { CreatePostInput } from "../../routes/postRoutes/postSchema";
 import type { UserNoSensitiveInfo } from "../../types/express-session";
-import type { PostsWithRelations } from "./typesPostServices";
+import type {
+  FollowedCommunitiesWithRelations,
+  PostsWithRelations,
+} from "./typesPostServices";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -62,8 +65,9 @@ const getAllPostsService = async (
   return [allPosts, foundCommunity.name];
 };
 
-// Make custom return type based on nested query for this function
-const getAllPostsFollowedService = async (user: UserNoSensitiveInfo) => {
+const getAllPostsFollowedService = async (
+  user: UserNoSensitiveInfo,
+): Promise<FollowedCommunitiesWithRelations[]> => {
   const userIdNumber = Number(user.id);
 
   if (user.followingCount === 0) {
@@ -72,7 +76,7 @@ const getAllPostsFollowedService = async (user: UserNoSensitiveInfo) => {
     );
   }
 
-  await prisma.followedCommunities.findMany({
+  return prisma.followedCommunities.findMany({
     where: {
       userId: userIdNumber,
     },
@@ -94,6 +98,8 @@ const getAllPostsFollowedService = async (user: UserNoSensitiveInfo) => {
     },
   });
 };
+
+const editPostService = async () => {};
 
 export default {
   createPostService,

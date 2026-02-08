@@ -23,3 +23,11 @@ export const PostParamsData = z
     postId: z.coerce.number().optional(),
   })
   .strict();
+
+export const EditPost = z
+  .object({
+    content: z.string(),
+  })
+  .strict();
+
+export type EditPostInput = z.infer<typeof EditPost>;
