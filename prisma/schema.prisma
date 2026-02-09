@@ -28,10 +28,13 @@ model Comments {
   content  String
   likes    Int
   dislikes Int
+  parentId Int?
   postId   Int
   authorId Int
   author   Users  @relation(fields: [authorId], references: [id])
   post     Posts  @relation(fields: [postId], references: [id])
+  parent   Comments? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comments[] @relation("CommentReplies")
 }
 
 model Communities {
@@ -60,7 +63,7 @@ model Conversations {
   id           Int        @id @default(autoincrement())
   timestamp    DateTime
   messages     Messages[]
-  participants Users[]    @relation("ConversationsToUsers")
+  participants Users[]    
 }
 
 model Users {
@@ -76,7 +79,7 @@ model Users {
   followedCommunities FollowedCommunities[]
   messages            Messages[]
   posts               Posts[]
-  conversations       Conversations[]       @relation("ConversationsToUsers")
+  conversations       Conversations[]       
   likedPosts          LikedPosts[]
   favoritedPosts      FavoritedPosts[]
 }
