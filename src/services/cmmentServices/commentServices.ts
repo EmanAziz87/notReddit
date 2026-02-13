@@ -1,3 +1,4 @@
+import { buildCommentTree } from "../../lib/nestCommentsHelper";
 import prisma from "../../lib/prisma";
 import { postFoundOrThrow } from "../../lib/prismaHelpers";
 import type { CreateCommentInput } from "../../routes/commentRoutes/commentSchema";
@@ -34,15 +35,15 @@ const replyCommentService = async (
   });
 };
 
-// All comments fetched as flat list. Create tree structure on server side
-// for parent/child comment relationship
 const getAllCommentsForPostService = async (postId: number) => {
   postFoundOrThrow(postId);
-  return prisma.comments.findMany({
+  const allComments = await prisma.comments.findMany({
     where: {
       postId: postId,
     },
   });
+
+  return buildCommentTree(allComments);
 };
 
 export default {

@@ -74,13 +74,13 @@ commentRouter.get("/post/:postId", async (req, res, next) => {
   try {
     const validatedParams: CommentParams = CommentParamsData.parse(req.params);
 
-    const fetchedComments = await commentServices.getAllCommentsForPostService(
+    const nestedComments = await commentServices.getAllCommentsForPostService(
       validatedParams.postId,
     );
     res.status(200).json({
       status: "SUCCESS",
       message: "Successfully fetched all comments for post",
-      fetchedComments,
+      nestedComments,
     });
   } catch (err) {
     next(err);
