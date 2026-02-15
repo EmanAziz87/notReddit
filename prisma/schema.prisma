@@ -27,14 +27,14 @@ model Comments {
   id       Int    @id @default(autoincrement())
   content  String
   likes    Int @default(0)
-  dislikes Int @default(0)
   parentId Int?
   postId   Int
   authorId Int
   author   Users  @relation(fields: [authorId], references: [id])
   post     Posts  @relation(fields: [postId], references: [id])
-  parent   Comments? @relation("CommentReplies", fields: [parentId], references: [id])
+  parent   Comments? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  Comments[] @relation("CommentReplies")
+  commentLikes  CommentReaction[]
 }
 
 model Communities {
@@ -82,6 +82,7 @@ model Users {
   conversations       Conversations[]       
   postReaction        PostReaction[]
   favoritedPosts      FavoritedPosts[]
+  commentLikes        CommentReaction[]
 }
 
 model FollowedCommunities {
@@ -108,6 +109,17 @@ model PostReaction {
   likedAt     DateTime    @default(now())
 
   @@id([userId, postId])
+}
+
+model CommentReaction {
+  userId      Int
+  commentId   Int
+  type        ReactionType
+  user        Users   @relation(fields: [userId], references: [id])
+  comment     Comments @relation(fields: [commentId], references: [id])
+  likedAt     DateTime @default(now())
+  
+  @@id([userId, commentId])
 }
 
 model FavoritedPosts {

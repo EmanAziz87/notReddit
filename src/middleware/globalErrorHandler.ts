@@ -21,7 +21,6 @@ export const globalErrorHandler = (
     return res.status(400).json({
       status: "VALIDATION_ERROR",
       message: err.issues,
-      entireErrObj: err,
     });
   }
 

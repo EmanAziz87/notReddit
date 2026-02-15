@@ -5,7 +5,7 @@ import {
   type CommentParams,
   type CreateCommentInput,
 } from "./commentSchema";
-import commentServices from "../../services/cmmentServices/commentServices";
+import commentServices from "../../services/commentServices/commentServices";
 import { isAuthenticated } from "../../middleware/isAuthenticated";
 
 const commentRouter = express.Router();
@@ -41,7 +41,7 @@ commentRouter.post(
 );
 
 commentRouter.post(
-  "/post/:postId/:parentId/reply",
+  "/post/:postId/:commentId/reply",
   isAuthenticated,
   async (req, res, next) => {
     try {
@@ -54,7 +54,7 @@ commentRouter.post(
 
       const createdReply = await commentServices.replyCommentService(
         validatedParams.postId,
-        validatedParams.parentId!,
+        validatedParams.commentId!,
         validatedData,
         Number(req.session.userId),
       );
@@ -86,5 +86,93 @@ commentRouter.get("/post/:postId", async (req, res, next) => {
     next(err);
   }
 });
+
+commentRouter.put(
+  "/post/:postId/:commentId/edit",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const validatedParams: CommentParams = CommentParamsData.parse(
+        req.params,
+      );
+      const validatedData: CreateCommentInput = CreateCommentData.parse(
+        req.body,
+      );
+
+      const editedComment = await commentServices.editCommentService(
+        validatedParams.postId,
+        validatedParams.commentId!,
+        validatedData,
+        Number(req.session.userId!),
+      );
+      res.status(201).json({
+        status: "SUCCESS",
+        message: "successfully edited comment",
+        editedComment,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+commentRouter.delete(
+  "/post/:postId/:commentId/delete",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const validatedParams: CommentParams = CommentParamsData.parse(
+        req.params,
+      );
+      await commentServices.deleteCommentService(
+        validatedParams.postId,
+        validatedParams.commentId!,
+        Number(req.session.userId!),
+      );
+      res
+        .status(204)
+        .json({ status: "SUCCESS", message: "Successfully deleted comment" });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+commentRouter.put(
+  "/post/:postId/:commentId/like",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const validatedParams: CommentParams = CommentParamsData.parse(
+        req.params,
+      );
+
+      const likedComment = await commentServices.likeCommentService(
+        validatedParams.postId,
+        validatedParams.commentId!,
+        Number(req.session.userId!),
+      );
+
+      res.status(201).json({
+        status: "SUCCESS",
+        message: "Successfully liked comment",
+        likedComment,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+commentRouter.put(
+  "/post/:postId/:commentId/unlike",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 export default commentRouter;

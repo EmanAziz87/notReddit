@@ -4,7 +4,7 @@ export type CommentParams = z.infer<typeof CommentParamsData>;
 
 export const CommentParamsData = z.object({
   postId: z.coerce.number(),
-  parentId: z.coerce.number().optional(),
+  commentId: z.coerce.number().optional(),
 });
 
 export type CreateCommentInput = z.infer<typeof CreateCommentData>;
