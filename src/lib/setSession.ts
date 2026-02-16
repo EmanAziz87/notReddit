@@ -3,7 +3,7 @@ import type { Users } from "../../generated/prisma/client";
 
 export const setSession = (req: Request, user: Users): Promise<void> => {
   return new Promise((resolve, reject) => {
-    req.session.userId = String(user.id);
+    req.session.userId = user.id;
     req.session.user = {
       id: user.id,
       username: user.username,
