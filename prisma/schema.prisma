@@ -63,7 +63,7 @@ model Conversations {
   id           Int        @id @default(autoincrement())
   timestamp    DateTime   @default(now())
   messages     Messages[]
-  conversations ConversationParticipant[]    
+  conversationParticipants ConversationParticipant[]    
 }
 
 model ConversationParticipant {
@@ -89,7 +89,7 @@ model Users {
   followedCommunities FollowedCommunities[]
   messages            Messages[]
   posts               Posts[]
-  conversations       ConversationParticipant[]       
+  conversationParticipants       ConversationParticipant[]       
   postReaction        PostReaction[]
   favoritedPosts      FavoritedPosts[]
   commentLikes        CommentReaction[]

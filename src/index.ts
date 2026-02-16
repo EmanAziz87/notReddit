@@ -9,7 +9,8 @@ import commentRouter from "./routes/commentRoutes/commentRoutes.js";
 import { Server } from "socket.io";
 import http from "http";
 import sessionMiddleware from "./middleware/sessionConfigMiddleware.js";
-import { UnauthorizedError } from "./lib/appErrors.js";
+import { NotFoundError, UnauthorizedError } from "./lib/appErrors.js";
+import prisma from "./lib/prisma.js";
 
 dotenv.config();
 
@@ -42,18 +43,91 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("Authenticated socket connected:", socket.data.userId);
+  console.log("Socket connected:", socket.id);
 
-  socket.on("ping", (message) => {
-    console.log("Received ping:", message);
+  socket.on("join_conversation", async (conversationId) => {
+    try {
+      let conversation = await prisma.conversations.findUnique({
+        where: {
+          id: conversationId,
+        },
+      });
 
-    socket.emit("pong", `Pong! You said: ${message}`);
+      if (!conversation) {
+        conversation = await prisma.$transaction(async (tx) => {
+          const createdConversation = await tx.conversations.create({});
+
+          await tx.conversationParticipant.create({
+            data: {
+              userId: socket.data.userId,
+              conversationId: createdConversation.id,
+            },
+          });
+
+          return createdConversation;
+        });
+      }
+
+      const roomName = `conversation-${conversation.id}`;
+      socket.join(roomName);
+      console.log(
+        `Socket ${socket.data.user.username} joined room ${roomName}`,
+      );
+    } catch (err) {
+      console.error("An error occured: ", err);
+
+      socket.emit("error_message", { message: "Failed to join conversation" });
+    }
+  });
+
+  socket.on("send_message", async (msg) => {
+    try {
+      if (!socket.rooms.has(`conversation-${msg.conversationId}`)) {
+        throw new NotFoundError("That conversation was not found");
+      }
+      const newMessage = await prisma.messages.create({
+        data: {
+          message: msg.content,
+          senderId: socket.data.userId,
+          conversationId: msg.conversationId,
+        },
+      });
+
+      const roomName = `conversation-${newMessage.conversationId}`;
+      io.to(roomName).emit("receive_message", newMessage);
+    } catch (err) {
+      console.error("An error occured: ", err);
+
+      socket.emit("error_message", { message: "Failed to send message" });
+    }
+  });
+
+  socket.on("leave_conversation", async (conversationId) => {
+    try {
+      await prisma.conversationParticipant.delete({
+        where: {
+          conversationId_userId: {
+            userId: socket.data.userId,
+            conversationId: conversationId,
+          },
+        },
+      });
+      const roomName = `conversation-${conversationId}`;
+      socket.leave(roomName);
+      console.log(`Socket ${socket.id} left room ${roomName}`);
+    } catch (err) {
+      console.error("An error occured: ", err);
+
+      socket.emit("error_message", { message: "Failed to leave conversation" });
+    }
   });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.data.userId);
   });
 });
+
+// Typing indicators, read receipts, multiple device handling can you explain how to implement each of these?
 
 app.use(express.json());
 
