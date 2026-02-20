@@ -1,8 +1,10 @@
 import express from "express";
 import { isAuthenticated } from "../../middleware/isAuthenticated";
 import {
-  ConversationParamsData,
-  type ConversationParams,
+  ConversationCreateParamsData,
+  ConversationGetParamsData,
+  type ConversationCreateParams,
+  type ConversationGetParams,
 } from "./conversationSchema";
 import conversationServices from "../../services/conversationServices/conversationServices";
 
@@ -13,9 +15,8 @@ conversationRouter.post(
   isAuthenticated,
   async (req, res, next) => {
     try {
-      const validatedParams: ConversationParams = ConversationParamsData.parse(
-        req.params,
-      );
+      const validatedParams: ConversationCreateParams =
+        ConversationCreateParamsData.parse(req.params);
 
       const createdConversation =
         await conversationServices.createConversationService(
