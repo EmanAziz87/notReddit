@@ -1,11 +1,12 @@
 import s3Client from "../util/s3client";
 import multer from "multer";
 import multerS3 from "multer-s3";
+import envConfig from "../util/envConfig";
 
 const uploads = multer({
   storage: multerS3({
     s3: s3Client,
-    bucket: process.env["AWS_BUCKET_NAME"]!,
+    bucket: envConfig.AWS_BUCKET_NAME,
     metadata: (req, file, cb) => {
       cb(null, {
         fieldName: file.filename,

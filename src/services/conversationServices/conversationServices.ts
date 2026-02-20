@@ -59,4 +59,28 @@ const getConversationHistoryService = async (
   }) as Promise<ConversationWithRelations>;
 };
 
-export default { createConversationService, getConversationHistoryService };
+const getAllConversationsMetadataService = async (userId: number) => {
+  return prisma.conversationParticipant.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      conversation: {
+        include: {
+          messages: {
+            orderBy: {
+              timestamp: "desc",
+            },
+            take: 1,
+          },
+        },
+      },
+    },
+  });
+};
+
+export default {
+  createConversationService,
+  getConversationHistoryService,
+  getAllConversationsMetadataService,
+};

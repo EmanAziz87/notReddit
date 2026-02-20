@@ -7,8 +7,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui --no-file-parallelism",
+    "test": "cross-env NODE_ENV=test vitest",
+    "test:ui": "cross-env NODE_ENV=test vitest --ui --no-file-parallelism",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.3",
     "@vitest/ui": "^4.0.18",
+    "cross-env": "^10.1.0",
     "prisma": "^7.3.0",
     "supertest": "^7.2.2",
     "typescript": "^5.9.3",

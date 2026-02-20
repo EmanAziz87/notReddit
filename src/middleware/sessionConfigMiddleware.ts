@@ -2,6 +2,7 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import session from "express-session";
 import { SESSION_COOKIE_NAME } from "../util/sessionName";
 import prisma from "../lib/prisma";
+import envConfig from "../util/envConfig";
 
 if (!process.env["SESSION_SECRET"]) {
   throw new Error("SESSION_SECRET must be defined in .env file");
@@ -15,7 +16,7 @@ const sessionMiddleware = session({
     sameSite: "lax",
   },
   name: SESSION_COOKIE_NAME,
-  secret: process.env["SESSION_SECRET"],
+  secret: envConfig.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: new PrismaSessionStore(prisma, {

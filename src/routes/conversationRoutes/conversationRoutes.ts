@@ -35,6 +35,23 @@ conversationRouter.post(
   },
 );
 
+conversationRouter.get("/metadata", isAuthenticated, async (req, res, next) => {
+  try {
+    const fetchedConversationsMetadata =
+      await conversationServices.getAllConversationsMetadataService(
+        req.session.userId,
+      );
+
+    res.status(200).json({
+      status: "SUCCESS",
+      message: "Successfully fetched all conversations metadata",
+      fetchedConversationsMetadata,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 conversationRouter.get(
   "/:conversationId",
   isAuthenticated,

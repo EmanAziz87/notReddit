@@ -13,16 +13,17 @@ import { NotFoundError, UnauthorizedError } from "./lib/appErrors.js";
 import prisma from "./lib/prisma.js";
 import conversationRouter from "./routes/conversationRoutes/conversationRoutes.js";
 import messageRouter from "./routes/messageRoutes/messageRoutes.js";
+import envConfig from "./util/envConfig.js";
 
 dotenv.config();
 
-const PORT = 3000;
+const PORT = envConfig.PORT;
 const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: envConfig.FRONTEND_URL,
     credentials: true,
   },
 });
@@ -135,7 +136,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: envConfig.FRONTEND_URL,
     credentials: true,
   }),
 );
