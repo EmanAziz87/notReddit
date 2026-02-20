@@ -1,5 +1,8 @@
 import prisma from "../../lib/prisma";
-import { conversationExistsOrThrow } from "../../lib/prismaHelpers";
+import {
+  conversationExistsOrThrow,
+  memberOfConversationOrThrow,
+} from "../../lib/prismaHelpers";
 
 const createMessageService = async (
   conversationId: number,
@@ -7,6 +10,7 @@ const createMessageService = async (
   content: string,
 ) => {
   const foundConversation = await conversationExistsOrThrow(conversationId);
+  await memberOfConversationOrThrow(foundConversation.id, userId);
 
   return prisma.messages.create({
     data: {

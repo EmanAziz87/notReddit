@@ -177,3 +177,21 @@ export const conversationExistsOrThrow = async (
 
   return foundConversation;
 };
+
+export const memberOfConversationOrThrow = async (
+  conversationId: number,
+  userId: number,
+): Promise<void> => {
+  const foundConversation = await prisma.conversationParticipant.findUnique({
+    where: {
+      conversationId_userId: {
+        conversationId: conversationId,
+        userId: userId,
+      },
+    },
+  });
+
+  if (!foundConversation) {
+    throw new NotFoundError("The user does not belong to that conversation");
+  }
+};
