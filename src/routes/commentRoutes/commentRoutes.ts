@@ -26,7 +26,7 @@ commentRouter.post(
       const createdComment = await commentServices.createCommentService(
         validatedData,
         validatedParams.postId,
-        Number(req.session.userId!),
+        req.session.userId,
       );
 
       res.status(201).json({
@@ -56,7 +56,7 @@ commentRouter.post(
         validatedParams.postId,
         validatedParams.commentId!,
         validatedData,
-        Number(req.session.userId),
+        req.session.userId,
       );
 
       res.status(201).json({
@@ -103,7 +103,7 @@ commentRouter.put(
         validatedParams.postId,
         validatedParams.commentId!,
         validatedData,
-        Number(req.session.userId!),
+        req.session.userId,
       );
       res.status(201).json({
         status: "SUCCESS",
@@ -127,7 +127,7 @@ commentRouter.delete(
       await commentServices.deleteCommentService(
         validatedParams.postId,
         validatedParams.commentId!,
-        Number(req.session.userId!),
+        req.session.userId,
       );
       res
         .status(204)
@@ -150,7 +150,7 @@ commentRouter.put(
       const likedComment = await commentServices.likeCommentService(
         validatedParams.postId,
         validatedParams.commentId!,
-        Number(req.session.userId!),
+        req.session.userId,
       );
 
       res.status(201).json({
@@ -176,7 +176,7 @@ commentRouter.put(
       const dislikedComment = await commentServices.dislikedCommentService(
         validatedParams.postId,
         validatedParams.commentId!,
-        Number(req.session.userId!),
+        req.session.userId,
       );
 
       res.status(201).json({

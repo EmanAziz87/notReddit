@@ -28,7 +28,7 @@ postRouter.post(
       const createdPost = await postServices.createPostService(
         validatedData,
         validatedParams.communityId,
-        req.session.userId!,
+        req.session.userId,
         files ? files.map((file) => file.location) : null,
       );
 
@@ -112,7 +112,7 @@ postRouter.put(
         validatedData.content,
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
       res.status(201).json({
         status: "SUCCESS",
@@ -134,7 +134,7 @@ postRouter.put(
       const likedPost = await postServices.likePostService(
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
       res.status(201).json({
         status: "SUCCESS",
@@ -157,7 +157,7 @@ postRouter.put(
       const unlikedPost = await postServices.unlikePostService(
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
 
       res.status(201).json({
@@ -180,7 +180,7 @@ postRouter.put(
       const favoritedPost = await postServices.favoritePostService(
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
       res.status(201).json({
         status: "SUCCESS",
@@ -202,7 +202,7 @@ postRouter.put(
       await postServices.unfavoritePostService(
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
       res.status(204).json({
         status: "SUCCESS",

@@ -25,7 +25,7 @@ import type {
 const createPostService = async (
   postInputData: CreatePostInput,
   communityId: number,
-  userId: string,
+  userId: number,
   imageLocationUrls: string[] | null,
 ) => {
   const userIdNumber = Number(userId);
@@ -149,7 +149,7 @@ const editPostService = async (
 const likePostService = async (
   communityId: number,
   postId: number,
-  userId: string,
+  userId: number,
 ): Promise<LikedPostsWithRelations> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -204,7 +204,7 @@ const likePostService = async (
 const unlikePostService = async (
   communityId: number,
   postId: number,
-  userId: string,
+  userId: number,
 ): Promise<PostsWithRelations> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -272,7 +272,7 @@ const unlikePostService = async (
 const favoritePostService = async (
   communityId: number,
   postId: number,
-  userId: string,
+  userId: number,
 ): Promise<FavoritedPostWithRelations> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -303,7 +303,7 @@ const favoritePostService = async (
 const unfavoritePostService = async (
   communityId: number,
   postId: number,
-  userId: string,
+  userId: number,
 ): Promise<void> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -323,7 +323,7 @@ const unfavoritePostService = async (
 const deletePostService = async (
   communityId: number,
   postId: number,
-  userId: string,
+  userId: number,
 ): Promise<void> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);

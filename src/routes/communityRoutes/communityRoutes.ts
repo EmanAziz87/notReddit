@@ -18,7 +18,7 @@ communityRouter.post("/create", isAuthenticated, async (req, res, next) => {
     const validatedData: CreateCommunityInput = CreateCommunity.parse(req.body);
     const createdCommunity = await communityServices.createCommunityService(
       validatedData,
-      req.session.userId!,
+      req.session.userId,
     );
 
     res.status(201).json({
@@ -39,7 +39,7 @@ communityRouter.put("/edit/:id", isAuthenticated, async (req, res, next) => {
     const editedCommunity = await communityServices.editCommunityService(
       validatedData,
       validatedParams.id,
-      req.session.userId!,
+      req.session.userId,
     );
 
     res.status(201).json({
@@ -91,7 +91,7 @@ communityRouter.put("/follow/:id", isAuthenticated, async (req, res, next) => {
     const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
     const followedCommunity = await communityServices.followCommunityService(
       validatedParams.id,
-      req.session.userId!,
+      req.session.userId,
     );
 
     req.session.user!.followingCount += 1;
@@ -116,7 +116,7 @@ communityRouter.put(
       const unfollowedCommunity =
         await communityServices.unfollowCommunityService(
           validatedParams.id,
-          req.session.userId!,
+          req.session.userId,
         );
       req.session.user!.followingCount -= 1;
       await saveSession(req);

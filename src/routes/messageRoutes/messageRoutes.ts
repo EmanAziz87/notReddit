@@ -23,7 +23,7 @@ messageRouter.post(
 
       const createdMessage = await messageService.createMessageService(
         validatedParams.conversationId,
-        req.session.userId!,
+        req.session.userId,
         validatedData.content,
       );
 

@@ -10,7 +10,7 @@ import type { FollowedCommunitiesWithCommunity } from "./typesCommunityServices"
 
 const createCommunityService = async (
   communityInputData: CreateCommunityInput,
-  userId: string,
+  userId: number,
 ): Promise<Communities> => {
   const userIdNumber = Number(userId);
 
@@ -39,7 +39,7 @@ const createCommunityService = async (
 const editCommunityService = async (
   editedCommunityInputData: EditCommunityInput,
   communityId: number,
-  userId: string,
+  userId: number,
 ): Promise<Communities> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -75,7 +75,7 @@ const getAllCommunitiesService = async (): Promise<Communities[]> => {
 
 const followCommunityService = async (
   communityId: number,
-  userId: string,
+  userId: number,
 ): Promise<FollowedCommunitiesWithCommunity> => {
   const userIdNumber = Number(userId);
 
@@ -136,7 +136,7 @@ const followCommunityService = async (
 
 const unfollowCommunityService = async (
   communityId: number,
-  userId: string,
+  userId: number,
 ): Promise<Communities> => {
   const userIdNumber = Number(userId);
   await communityFoundOrThrow(communityId);
