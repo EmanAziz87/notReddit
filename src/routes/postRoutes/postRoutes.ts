@@ -84,11 +84,29 @@ postRouter.get(
   },
 );
 
+postRouter.get("/", async (req, res, next) => {
+  try {
+    const allFetchedPosts = await postServices.getAllPosts();
+
+    res
+      .status(200)
+      .json({
+        status: "SUCCESSFULL",
+        message: "Successfully grabbed all posts",
+        allFetchedPosts,
+      });
+  } catch (err) {
+    next(err);
+  }
+});
+
 postRouter.get("/community/:communityId", async (req, res, next) => {
   try {
     const validatedParams: PostParams = PostParamsData.parse(req.params);
     const [allFetchedPosts, communityName] =
-      await postServices.getAllPostsService(validatedParams.communityId);
+      await postServices.getAllCommunityPostsService(
+        validatedParams.communityId,
+      );
 
     res.status(200).json({
       status: "SUCCESS",

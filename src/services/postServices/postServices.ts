@@ -47,6 +47,10 @@ const createPostService = async (
   });
 };
 
+const getAllPosts = async (): Promise<Array<Posts>> => {
+  return prisma.posts.findMany();
+};
+
 const getPostService = async (
   communityId: number,
   postId: number,
@@ -57,7 +61,7 @@ const getPostService = async (
   return await postFoundOrThrow(postId);
 };
 
-const getAllPostsService = async (
+const getAllCommunityPostsService = async (
   communityId: number,
 ): Promise<[PostsWithRelations[], string]> => {
   const foundCommunity = await communityFoundOrThrow(communityId);
@@ -374,7 +378,8 @@ const deletePostService = async (
 export default {
   createPostService,
   getPostService,
-  getAllPostsService,
+  getAllPosts,
+  getAllCommunityPostsService,
   getAllPostsFollowedService,
   editPostService,
   likePostService,
