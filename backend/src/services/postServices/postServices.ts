@@ -192,37 +192,45 @@ const likePostService = async (
   communityId: number,
   postId: number,
   userId: number,
-): Promise<LikedPostsWithRelations> => {
+): Promise<PostsWithRelations> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
   const foundPost = await postFoundOrThrow(postId);
   await postFoundInCommunityOrThrow(foundCommunity, foundPost);
   await postLikedAlreadyOrThrow(postId, userIdNumber);
 
-  return prisma.$transaction(async (tx) => {
-    await tx.posts.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        likes: {
-          increment: 1,
+  return prisma.$transaction(
+    async (tx) => {
+      const postReactionExists = await prisma.postReaction.findUnique({
+        where: {
+          userId_postId: {
+            userId: userId,
+            postId: postId,
+          },
         },
-      },
-    });
-
-    return await tx.postReaction.create({
-      data: {
-        postId: postId,
-        userId: userIdNumber,
-        type: ReactionType.LIKE,
-      },
-      include: {
-        post: {
+      });
+      if (!postReactionExists) {
+        await tx.postReaction.create({
+          data: {
+            postId: postId,
+            userId: userIdNumber,
+            type: ReactionType.LIKE,
+          },
           include: {
-            community: true,
-            comments: true,
-            author: {
+            post: {
+              include: {
+                community: true,
+                comments: true,
+                author: {
+                  select: {
+                    id: true,
+                    username: true,
+                    admin: true,
+                  },
+                },
+              },
+            },
+            user: {
               select: {
                 id: true,
                 username: true,
@@ -230,17 +238,42 @@ const likePostService = async (
               },
             },
           },
+        });
+      } else if (postReactionExists.type === "DISLIKE") {
+        await tx.postReaction.delete({
+          where: {
+            userId_postId: {
+              userId: userId,
+              postId: postId,
+            },
+          },
+        });
+      }
+      return await tx.posts.update({
+        where: {
+          id: postId,
         },
-        user: {
-          select: {
-            id: true,
-            username: true,
-            admin: true,
+        data: {
+          likes: {
+            increment: 1,
           },
         },
-      },
-    });
-  });
+        include: {
+          community: true,
+          comments: true,
+
+          author: {
+            select: {
+              id: true,
+              username: true,
+              admin: true,
+            },
+          },
+        },
+      });
+    },
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+  );
 };
 
 const unlikePostService = async (
@@ -254,61 +287,63 @@ const unlikePostService = async (
   await postFoundInCommunityOrThrow(foundCommunity, foundPost);
   await postDislikedAlreadyOrThrow(postId, userIdNumber);
 
-  const postReactionExists = await prisma.postReaction.findUnique({
-    where: {
-      userId_postId: {
-        userId: userIdNumber,
-        postId: postId,
-      },
-    },
-  });
-
-  return prisma.$transaction(async (tx) => {
-    const unlikedPost = await tx.posts.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        likes: {
-          decrement: 1,
-        },
-      },
-      include: {
-        community: true,
-        comments: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            admin: true,
-          },
-        },
-      },
-    });
-
-    if (!postReactionExists) {
-      await tx.postReaction.create({
-        data: {
-          userId: userIdNumber,
-          postId: postId,
-          type: ReactionType.DISLIKE,
-        },
-      });
-      return unlikedPost;
-    }
-
-    if (postReactionExists) {
-      await tx.postReaction.delete({
+  return prisma.$transaction(
+    async (tx) => {
+      const postReactionExists = await tx.postReaction.findUnique({
         where: {
           userId_postId: {
-            postId: postId,
             userId: userIdNumber,
+            postId: postId,
           },
         },
       });
-    }
-    return unlikedPost;
-  });
+      const unlikedPost = await tx.posts.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          likes: {
+            decrement: 1,
+          },
+        },
+        include: {
+          community: true,
+          comments: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              admin: true,
+            },
+          },
+        },
+      });
+
+      if (!postReactionExists) {
+        await tx.postReaction.create({
+          data: {
+            userId: userIdNumber,
+            postId: postId,
+            type: ReactionType.DISLIKE,
+          },
+        });
+        return unlikedPost;
+      }
+
+      if (postReactionExists) {
+        await tx.postReaction.delete({
+          where: {
+            userId_postId: {
+              postId: postId,
+              userId: userIdNumber,
+            },
+          },
+        });
+      }
+      return unlikedPost;
+    },
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+  );
 };
 
 const favoritePostService = async (
@@ -401,7 +436,7 @@ const deletePostService = async (
 
   if (queriesFinished) {
     await Promise.all(
-      foundPost.mediaUrl.map((key) => {
+      foundPost.mediaUrl.map((key: string) => {
         s3Client.send(
           new DeleteObjectCommand({
             Bucket: process.env["AWS_BUCKET_NAME"],
