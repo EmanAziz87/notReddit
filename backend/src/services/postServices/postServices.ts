@@ -1,5 +1,9 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { ReactionType, type Posts } from "../../../generated/prisma/client";
+import {
+  Prisma,
+  ReactionType,
+  type Posts,
+} from "../../../generated/prisma/client";
 import { InvalidRequestError } from "../../lib/appErrors";
 import prisma from "../../lib/prisma";
 import {
@@ -18,9 +22,12 @@ import s3Client from "../../util/s3client";
 import type {
   FavoritedPostWithRelations,
   FollowedCommunitiesWithRelations,
-  PostsWithRelations,
 } from "./typesPostServices";
-import type { LikedPostsWithRelations } from "../../types";
+import type {
+  LikedPostsWithRelations,
+  PostsWithExtraData,
+  PostsWithRelations,
+} from "../../types";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -54,11 +61,42 @@ const getAllPosts = async (): Promise<Array<Posts>> => {
 const getPostService = async (
   communityId: number,
   postId: number,
-): Promise<PostsWithRelations> => {
+  userId: number,
+): Promise<PostsWithExtraData> => {
   const foundCommunity = await communityFoundOrThrow(communityId);
   const foundPost = await postFoundOrThrow(postId);
   await postFoundInCommunityOrThrow(foundCommunity, foundPost);
-  return await postFoundOrThrow(postId);
+
+  const postLikedAlready = await prisma.postReaction.findUnique({
+    where: {
+      userId_postId: {
+        userId: userId,
+        postId: postId,
+      },
+    },
+  });
+
+  if (postLikedAlready?.type === "LIKE") {
+    return {
+      ...foundPost,
+      userReaction: "liked",
+    };
+  }
+
+  if (postLikedAlready?.type === "DISLIKE") {
+    console.log("DISLIKED ALREADY: TRUE");
+    return {
+      ...foundPost,
+      userReaction: "disliked",
+    };
+  }
+
+  const foundPostNull = {
+    ...foundPost,
+    userReaction: null,
+  };
+
+  return foundPostNull;
 };
 
 const getAllCommunityPostsService = async (
