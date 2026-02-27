@@ -19,4 +19,11 @@ const likePost = async (communityId: string, postId: string) => {
   return response.data;
 };
 
-export default { fetchAllPosts, fetchPost, likePost };
+const dislikePost = async (communityId: string, postId: string) => {
+  const response = await api.put(
+    `/posts/community/${communityId}/post/${postId}/unlike`,
+  );
+  return response.data;
+};
+
+export default { fetchAllPosts, fetchPost, likePost, dislikePost };
