@@ -1,0 +1,28 @@
+import { PrismaSessionStore } from "@quixo3/prisma-session-store";
+import session from "express-session";
+import { SESSION_COOKIE_NAME } from "../util/sessionName";
+import prisma from "../lib/prisma";
+import envConfig from "../util/envConfig";
+
+if (!process.env["SESSION_SECRET"]) {
+  throw new Error("SESSION_SECRET must be defined in .env file");
+}
+
+const sessionMiddleware = session({
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: process.env["NODE_ENV"] === "production",
+    sameSite: "lax",
+  },
+  name: SESSION_COOKIE_NAME,
+  secret: envConfig.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: new PrismaSessionStore(prisma, {
+    checkPeriod: 2 * 60 * 1000,
+    dbRecordIdIsSessionId: true,
+  }),
+});
+
+export default sessionMiddleware;
