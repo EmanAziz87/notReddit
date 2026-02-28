@@ -24,4 +24,5 @@ export type PostsWithRelations = Prisma.PostsGetPayload<{
 
 export type PostsWithExtraData = PostsWithRelations & {
   userReaction: "liked" | "disliked" | null;
+  favorited: boolean;
 };

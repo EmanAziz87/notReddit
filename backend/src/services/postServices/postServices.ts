@@ -76,27 +76,35 @@ const getPostService = async (
     },
   });
 
+  const postFavoritedAlready = await prisma.favoritedPosts.findUnique({
+    where: {
+      userId_postId: {
+        userId,
+        postId,
+      },
+    },
+  });
+
+  let userReaction: "liked" | "disliked" | null = null;
+  let favorited: boolean = true;
+
   if (postLikedAlready?.type === "LIKE") {
-    return {
-      ...foundPost,
-      userReaction: "liked",
-    };
+    userReaction = "liked";
   }
 
   if (postLikedAlready?.type === "DISLIKE") {
-    console.log("DISLIKED ALREADY: TRUE");
-    return {
-      ...foundPost,
-      userReaction: "disliked",
-    };
+    userReaction = "disliked";
   }
 
-  const foundPostNull = {
-    ...foundPost,
-    userReaction: null,
-  };
+  if (!postFavoritedAlready) {
+    favorited = false;
+  }
 
-  return foundPostNull;
+  return {
+    ...foundPost,
+    userReaction: userReaction,
+    favorited,
+  };
 };
 
 const getAllCommunityPostsService = async (
