@@ -5,7 +5,7 @@ import {
   type Posts,
   type Users,
 } from "../../generated/prisma/client";
-import type { PostsWithRelations } from "../services/postServices/typesPostServices";
+import type { PostsWithRelations } from "../types";
 import { ConflictError, NotFoundError, UnauthorizedError } from "./appErrors";
 import prisma from "./prisma";
 
@@ -88,12 +88,11 @@ export const postLikedAlreadyOrThrow = async (
   postId: number,
   userId: number,
 ): Promise<void> => {
-  const postLikedAlready = await prisma.postReaction.findUnique({
+  const postLikedAlready = await prisma.postReaction.findFirst({
     where: {
-      userId_postId: {
-        userId: userId,
-        postId: postId,
-      },
+      userId: userId,
+      postId: postId,
+      type: ReactionType.LIKE,
     },
   });
 

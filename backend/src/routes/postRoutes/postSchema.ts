@@ -24,6 +24,11 @@ export const PostParamsData = z
   })
   .strict();
 
+export const PostReactionParamsData = PostParamsData.extend({
+  reaction: z.enum(["LIKE", "DISLIKE", "NONE"]),
+});
+export type PostReactionParams = z.infer<typeof PostReactionParamsData>;
+
 export const EditPost = z
   .object({
     content: z.string(),

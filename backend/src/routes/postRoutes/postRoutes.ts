@@ -5,10 +5,12 @@ import {
   CreatePost,
   EditPost,
   PostParamsData,
+  PostReactionParamsData,
   type CreatePostInput,
   type EditPostInput,
   type MulterS3File,
   type PostParams,
+  type PostReactionParams,
 } from "./postSchema";
 import postServices from "../../services/postServices/postServices";
 import { cleanUpOrphanedImages } from "../../lib/s3cleanup";
@@ -52,6 +54,7 @@ postRouter.get(
       const fetchedPost = await postServices.getPostService(
         validatedParams.communityId,
         validatedParams.postId!,
+        req.session.userId!,
       );
 
       res.status(200).json({
@@ -88,13 +91,11 @@ postRouter.get("/", async (req, res, next) => {
   try {
     const allFetchedPosts = await postServices.getAllPosts();
 
-    res
-      .status(200)
-      .json({
-        status: "SUCCESSFULL",
-        message: "Successfully grabbed all posts",
-        allFetchedPosts,
-      });
+    res.status(200).json({
+      status: "SUCCESSFULL",
+      message: "Successfully grabbed all posts",
+      allFetchedPosts,
+    });
   } catch (err) {
     next(err);
   }
@@ -143,20 +144,23 @@ postRouter.put(
   },
 );
 
-postRouter.put(
-  "/community/:communityId/post/:postId/like",
+postRouter.post(
+  "/community/:communityId/post/:postId/:reaction/setReaction",
   isAuthenticated,
   async (req, res, next) => {
     try {
-      const validatedParams: PostParams = PostParamsData.parse(req.params);
-      const likedPost = await postServices.likePostService(
+      const validatedParams: PostReactionParams = PostReactionParamsData.parse(
+        req.params,
+      );
+      const likedPost = await postServices.setPostReactionService(
         validatedParams.communityId,
         validatedParams.postId!,
         req.session.userId,
+        validatedParams.reaction,
       );
       res.status(201).json({
         status: "SUCCESS",
-        message: `Successfully liked post ${likedPost.post.title}`,
+        message: `Successfully liked post `,
         likedPost,
       });
     } catch (err) {

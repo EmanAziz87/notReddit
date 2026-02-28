@@ -13,3 +13,9 @@
 .like-dislike-container {
   display: flex;
 }
+
+.favorite-icon {
+  -webkit-mask-image: url("../../assets/icons/heart.svg");
+  mask-image: url("../../assets/icons/heart.svg");
+  cursor: pointer;
+}

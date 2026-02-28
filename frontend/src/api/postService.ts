@@ -12,18 +12,29 @@ const fetchPost = async (communityId: string, postId: string) => {
   return response.data;
 };
 
-const likePost = async (communityId: string, postId: string) => {
-  const response = await api.put(
-    `/posts/community/${communityId}/post/${postId}/like`,
+const setReaction = async (
+  communityId: string,
+  postId: string,
+  reaction: "LIKE" | "DISLIKE" | "NONE",
+) => {
+  const response = await api.post(
+    `/posts/community/${communityId}/post/${postId}/${reaction}/setReaction`,
   );
   return response.data;
 };
 
-const dislikePost = async (communityId: string, postId: string) => {
-  const response = await api.put(
-    `/posts/community/${communityId}/post/${postId}/unlike`,
-  );
-  return response.data;
-};
+// const likePost = async (communityId: string, postId: string) => {
+//   const response = await api.put(
+//     `/posts/community/${communityId}/post/${postId}/like`,
+//   );
+//   return response.data;
+// };
 
-export default { fetchAllPosts, fetchPost, likePost, dislikePost };
+// const dislikePost = async (communityId: string, postId: string) => {
+//   const response = await api.put(
+//     `/posts/community/${communityId}/post/${postId}/unlike`,
+//   );
+//   return response.data;
+// };
+
+export default { fetchAllPosts, fetchPost, setReaction };
