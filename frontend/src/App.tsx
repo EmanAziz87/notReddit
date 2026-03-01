@@ -17,7 +17,6 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error: any) => {
       if (error?.status === 401) {
-        //add some error conditions for api calls
       }
     },
   }),
