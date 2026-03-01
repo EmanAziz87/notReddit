@@ -300,35 +300,39 @@ const unlikePostService = async (
   });
 };
 
-const favoritePostService = async (
+const setFavoritePostService = async (
   communityId: number,
   postId: number,
   userId: number,
-): Promise<FavoritedPostWithRelations> => {
+  favorite: boolean,
+): Promise<void> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);
   const foundPost = await postFoundOrThrow(postId);
   await postFoundInCommunityOrThrow(foundCommunity, foundPost);
-  await postFavoritedAlreadyOrThrow(postId, userIdNumber);
 
-  return prisma.$transaction(async (tx) => {
-    return await tx.favoritedPosts.create({
-      data: {
-        postId: postId,
-        userId: userIdNumber,
-      },
-      include: {
-        post: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-            admin: true,
-          },
+  if (favorite) {
+    await prisma.favoritedPosts.upsert({
+      where: {
+        userId_postId: {
+          userId: userIdNumber,
+          postId,
         },
       },
+      create: {
+        postId,
+        userId: userIdNumber,
+      },
+      update: {},
     });
-  });
+  } else {
+    await prisma.favoritedPosts.deleteMany({
+      where: {
+        userId: userIdNumber,
+        postId,
+      },
+    });
+  }
 };
 
 const unfavoritePostService = async (
@@ -411,7 +415,7 @@ export default {
   editPostService,
   setPostReactionService,
   unlikePostService,
-  favoritePostService,
+  setFavoritePostService,
   unfavoritePostService,
   deletePostService,
 };

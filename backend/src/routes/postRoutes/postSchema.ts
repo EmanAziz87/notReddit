@@ -36,3 +36,11 @@ export const EditPost = z
   .strict();
 
 export type EditPostInput = z.infer<typeof EditPost>;
+
+export const FavoritePostData = z
+  .object({
+    favorite: z.boolean(),
+  })
+  .strict();
+
+export type FavoritePost = z.infer<typeof FavoritePostData>;

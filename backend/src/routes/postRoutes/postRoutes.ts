@@ -4,10 +4,12 @@ import uploads from "../../middleware/s3storage";
 import {
   CreatePost,
   EditPost,
+  FavoritePostData,
   PostParamsData,
   PostReactionParamsData,
   type CreatePostInput,
   type EditPostInput,
+  type FavoritePost,
   type MulterS3File,
   type PostParams,
   type PostReactionParams,
@@ -193,20 +195,23 @@ postRouter.put(
   },
 );
 
-postRouter.put(
-  "/community/:communityId/post/:postId/favorite",
+postRouter.post(
+  "/community/:communityId/post/:postId/setFavorite",
   isAuthenticated,
   async (req, res, next) => {
     try {
+      console.log("reqbody: ", req.body);
       const validatedParams: PostParams = PostParamsData.parse(req.params);
-      const favoritedPost = await postServices.favoritePostService(
+      const validatedData: FavoritePost = FavoritePostData.parse(req.body);
+      const favoritedPost = await postServices.setFavoritePostService(
         validatedParams.communityId,
         validatedParams.postId!,
         req.session.userId,
+        validatedData.favorite,
       );
       res.status(201).json({
         status: "SUCCESS",
-        message: `Successfully favorited post ${favoritedPost.post.title}`,
+        message: `Successfully favorited post`,
         favoritedPost,
       });
     } catch (err) {

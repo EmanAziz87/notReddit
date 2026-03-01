@@ -23,6 +23,16 @@ const setReaction = async (
   return response.data;
 };
 
+const setFavorite = async (
+  communityId: string,
+  postId: string,
+  favorite: boolean,
+) => {
+  await api.post(`/posts/community/${communityId}/post/${postId}/setFavorite`, {
+    favorite,
+  });
+};
+
 // const likePost = async (communityId: string, postId: string) => {
 //   const response = await api.put(
 //     `/posts/community/${communityId}/post/${postId}/like`,
@@ -37,4 +47,4 @@ const setReaction = async (
 //   return response.data;
 // };
 
-export default { fetchAllPosts, fetchPost, setReaction };
+export default { fetchAllPosts, fetchPost, setReaction, setFavorite };
