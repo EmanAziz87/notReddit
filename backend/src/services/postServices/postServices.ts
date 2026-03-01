@@ -240,66 +240,6 @@ const setPostReactionService = async (
   });
 };
 
-const unlikePostService = async (
-  communityId: number,
-  postId: number,
-  userId: number,
-): Promise<PostsWithRelations> => {
-  const userIdNumber = Number(userId);
-  const foundCommunity = await communityFoundOrThrow(communityId);
-  const foundPost = await postFoundOrThrow(postId);
-  await postFoundInCommunityOrThrow(foundCommunity, foundPost);
-  await postDislikedAlreadyOrThrow(postId, userIdNumber);
-
-  return prisma.$transaction(async (tx) => {
-    const postReactionExists = await tx.postReaction.findUnique({
-      where: {
-        userId_postId: {
-          userId: userIdNumber,
-          postId: postId,
-        },
-      },
-    });
-
-    if (!postReactionExists) {
-      await tx.postReaction.create({
-        data: {
-          userId: userIdNumber,
-          postId,
-          type: ReactionType.DISLIKE,
-        },
-      });
-    } else {
-      await tx.postReaction.delete({
-        where: {
-          userId_postId: {
-            postId,
-            userId: userIdNumber,
-          },
-        },
-      });
-    }
-
-    return await tx.posts.update({
-      where: { id: postId },
-      data: {
-        likes: { decrement: 1 },
-      },
-      include: {
-        community: true,
-        comments: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            admin: true,
-          },
-        },
-      },
-    });
-  });
-};
-
 const setFavoritePostService = async (
   communityId: number,
   postId: number,
@@ -333,26 +273,6 @@ const setFavoritePostService = async (
       },
     });
   }
-};
-
-const unfavoritePostService = async (
-  communityId: number,
-  postId: number,
-  userId: number,
-): Promise<void> => {
-  const userIdNumber = Number(userId);
-  const foundCommunity = await communityFoundOrThrow(communityId);
-  const foundPost = await postFoundOrThrow(postId);
-  await postFoundInCommunityOrThrow(foundCommunity, foundPost);
-
-  await prisma.favoritedPosts.delete({
-    where: {
-      userId_postId: {
-        postId: postId,
-        userId: userIdNumber,
-      },
-    },
-  });
 };
 
 const deletePostService = async (
@@ -414,8 +334,6 @@ export default {
   getAllPostsFollowedService,
   editPostService,
   setPostReactionService,
-  unlikePostService,
   setFavoritePostService,
-  unfavoritePostService,
   deletePostService,
 };

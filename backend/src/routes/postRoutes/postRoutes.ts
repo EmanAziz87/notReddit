@@ -171,30 +171,6 @@ postRouter.post(
   },
 );
 
-postRouter.put(
-  "/community/:communityId/post/:postId/unlike",
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const validatedParams: PostParams = PostParamsData.parse(req.params);
-
-      const unlikedPost = await postServices.unlikePostService(
-        validatedParams.communityId,
-        validatedParams.postId!,
-        req.session.userId,
-      );
-
-      res.status(201).json({
-        status: "SUCCESS",
-        message: `Successfully unliked post: ${unlikedPost}`,
-        unlikedPost,
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
-
 postRouter.post(
   "/community/:communityId/post/:postId/setFavorite",
   isAuthenticated,
@@ -213,27 +189,6 @@ postRouter.post(
         status: "SUCCESS",
         message: `Successfully favorited post`,
         favoritedPost,
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
-
-postRouter.put(
-  "/community/:communityId/post/:postId/unfavorite",
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const validatedParams: PostParams = PostParamsData.parse(req.params);
-      await postServices.unfavoritePostService(
-        validatedParams.communityId,
-        validatedParams.postId!,
-        req.session.userId,
-      );
-      res.status(204).json({
-        status: "SUCCESS",
-        message: `Successfully unfavorited post`,
       });
     } catch (err) {
       next(err);
