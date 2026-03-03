@@ -45,6 +45,7 @@ commentRouter.post(
   isAuthenticated,
   async (req, res, next) => {
     try {
+      console.log("did we make it");
       const validatedParams: CommentParams = CommentParamsData.parse(
         req.params,
       );

@@ -9,25 +9,15 @@ import prisma from "../../lib/prisma";
 import {
   communityFoundOrThrow,
   isPostOwnerOrThrow,
-  postDislikedAlreadyOrThrow,
-  postFavoritedAlreadyOrThrow,
   postFoundInCommunityOrThrow,
   postFoundOrThrow,
-  postLikedAlreadyOrThrow,
   postMadeByUserOrThrow,
 } from "../../lib/prismaHelpers";
 import type { CreatePostInput } from "../../routes/postRoutes/postSchema";
 import type { UserNoSensitiveInfo } from "../../types/express-session";
 import s3Client from "../../util/s3client";
-import type {
-  FavoritedPostWithRelations,
-  FollowedCommunitiesWithRelations,
-} from "./typesPostServices";
-import type {
-  LikedPostsWithRelations,
-  PostsWithExtraData,
-  PostsWithRelations,
-} from "../../types";
+import type { FollowedCommunitiesWithRelations } from "./typesPostServices";
+import type { PostsWithExtraData, PostsWithRelations } from "../../types";
 
 const createPostService = async (
   postInputData: CreatePostInput,
