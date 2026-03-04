@@ -72,6 +72,46 @@ const getAllCommentsForPostService = async (postId: number) => {
     },
   });
 
+  // convert the below logic to comment reaction. change commentReact find unique to find many.
+  // find many of the comment reactions and pass it into the build comment tree function.
+  // In the function, attach userReaction to each comment based on whether the commentId for each
+  // returned commentReaction matches the nestedComments comment.
+
+  // on the frontend, copy the useSetPostReactionMutation to use for comments. obviously make adjustments
+  // to account for the fact that we are working with nested arrays here, so mutation are going to be a little
+  // bit more complicated. In the future we will think about sharing a function for setting both post likes and
+  // comment likes.
+
+  // const postLikedAlready = await prisma.postReaction.findUnique({
+  //   where: {
+  //     userId_postId: {
+  //       userId: userId,
+  //       postId: postId,
+  //     },
+  //   },
+  // });
+
+  // let userReaction: "liked" | "disliked" | null = null;
+  // let favorited: boolean = true;
+
+  // if (postLikedAlready?.type === "LIKE") {
+  //   userReaction = "liked";
+  // }
+
+  // if (postLikedAlready?.type === "DISLIKE") {
+  //   userReaction = "disliked";
+  // }
+
+  // if (!postFavoritedAlready) {
+  //   favorited = false;
+  // }
+
+  // return {
+  //   ...foundPost,
+  //   userReaction: userReaction,
+  //   favorited,
+  // };
+
   return buildCommentTree(allComments);
 };
 
@@ -118,59 +158,36 @@ const deleteCommentService = async (
   });
 };
 
-const likeCommentService = async (
+const setCommentReactionService = async (
   postId: number,
   commentId: number,
   userId: number,
+  reaction: "LIKE" | "DISLIKE" | "NONE",
 ) => {
   postFoundOrThrow(postId);
 
-  const foundLikedComment = await prisma.commentReaction.findUnique({
-    where: {
-      userId_commentId: {
-        userId: userId,
-        commentId: commentId,
-      },
-    },
+  if (reaction === "NONE") {
+    await prisma.commentReaction.deleteMany({
+      where: { userId: userId, commentId },
+    });
+  } else {
+    await prisma.commentReaction.upsert({
+      where: { userId_commentId: { userId: userId, commentId } },
+      create: { userId: userId, commentId, type: reaction },
+      update: { type: reaction },
+    });
+  }
+
+  const likeCount = await prisma.commentReaction.count({
+    where: { commentId, type: "LIKE" },
+  });
+  const dislikeCount = await prisma.commentReaction.count({
+    where: { commentId, type: "DISLIKE" },
   });
 
-  return await prisma.$transaction(async (tx) => {
-    if (!foundLikedComment) {
-      await tx.commentReaction.create({
-        data: {
-          userId: userId,
-          commentId: commentId,
-          type: "LIKE",
-        },
-      });
-      return await tx.comments.update({
-        where: {
-          id: commentId,
-        },
-        data: {
-          likes: { increment: 1 },
-        },
-      });
-    } else if (foundLikedComment.type === "DISLIKE") {
-      await tx.commentReaction.delete({
-        where: {
-          userId_commentId: {
-            userId: userId,
-            commentId: commentId,
-          },
-        },
-      });
-      return await tx.comments.update({
-        where: {
-          id: commentId,
-        },
-        data: {
-          likes: { increment: 1 },
-        },
-      });
-    } else {
-      throw new ConflictError("Already liked that comment");
-    }
+  return prisma.comments.update({
+    where: { id: commentId },
+    data: { likes: likeCount - dislikeCount },
   });
 };
 
@@ -236,6 +253,6 @@ export default {
   getAllCommentsForPostService,
   editCommentService,
   deleteCommentService,
-  likeCommentService,
+  setCommentReactionService,
   dislikedCommentService,
 };

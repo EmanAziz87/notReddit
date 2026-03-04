@@ -14,3 +14,8 @@ export const CreateCommentData = z
     content: z.string(),
   })
   .strict();
+
+export const CommentReactionData = z.object({
+  reaction: z.enum(["LIKE", "DISLIKE", "NONE"]),
+});
+export type CommentReaction = z.infer<typeof CommentReactionData>;

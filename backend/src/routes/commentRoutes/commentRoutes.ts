@@ -1,8 +1,10 @@
 import express from "express";
 import {
   CommentParamsData,
+  CommentReactionData,
   CreateCommentData,
   type CommentParams,
+  type CommentReaction,
   type CreateCommentInput,
 } from "./commentSchema";
 import commentServices from "../../services/commentServices/commentServices";
@@ -139,8 +141,8 @@ commentRouter.delete(
   },
 );
 
-commentRouter.put(
-  "/post/:postId/:commentId/like",
+commentRouter.post(
+  "/post/:postId/:commentId/setReaction",
   isAuthenticated,
   async (req, res, next) => {
     try {
@@ -148,10 +150,15 @@ commentRouter.put(
         req.params,
       );
 
-      const likedComment = await commentServices.likeCommentService(
+      const validatedData: CommentReaction = CommentReactionData.parse(
+        req.body,
+      );
+
+      const likedComment = await commentServices.setCommentReactionService(
         validatedParams.postId,
         validatedParams.commentId!,
         req.session.userId,
+        validatedData.reaction,
       );
 
       res.status(201).json({
