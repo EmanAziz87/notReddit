@@ -79,6 +79,7 @@ commentRouter.get("/post/:postId", async (req, res, next) => {
 
     const nestedComments = await commentServices.getAllCommentsForPostService(
       validatedParams.postId,
+      req.session.userId,
     );
     res.status(200).json({
       status: "SUCCESS",
@@ -142,7 +143,7 @@ commentRouter.delete(
 );
 
 commentRouter.post(
-  "/post/:postId/:commentId/setReaction",
+  "/post/:postId/:commentId/:reaction/setReaction",
   isAuthenticated,
   async (req, res, next) => {
     try {
@@ -150,15 +151,11 @@ commentRouter.post(
         req.params,
       );
 
-      const validatedData: CommentReaction = CommentReactionData.parse(
-        req.body,
-      );
-
       const likedComment = await commentServices.setCommentReactionService(
         validatedParams.postId,
         validatedParams.commentId!,
         req.session.userId,
-        validatedData.reaction,
+        validatedParams.reaction!,
       );
 
       res.status(201).json({

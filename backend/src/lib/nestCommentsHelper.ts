@@ -1,11 +1,28 @@
 import type { Comments } from "../../generated/prisma/client";
+import type { CommentsWithExtraData } from "../types";
 
-export const buildCommentTree = (comments: Array<Comments>) => {
+export const buildCommentTree = (
+  comments: Array<Comments>,
+  commentReactionsArr: {
+    commentId: number;
+    userReaction: "liked" | "disliked" | null;
+  }[],
+): CommentsWithExtraData[] => {
   const map = new Map<number, any>();
-  const roots: any[] = [];
+  const roots: CommentsWithExtraData[] = [];
 
   comments.forEach((comment) => {
-    map.set(comment.id, { ...comment, replies: [] });
+    const userReaction =
+      commentReactionsArr.find((c) => c.commentId === comment.id)
+        ?.userReaction ?? null;
+    console.log("comment id:", comment.id, "userReaction:", userReaction);
+    map.set(comment.id, {
+      ...comment,
+      replies: [],
+      userReaction:
+        commentReactionsArr.find((c) => c.commentId === comment.id)
+          ?.userReaction ?? null,
+    });
   });
 
   map.forEach((comment) => {

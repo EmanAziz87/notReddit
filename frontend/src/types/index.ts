@@ -24,4 +24,5 @@ export interface CommentsWithReplies {
   };
   showReplyInput: boolean;
   replies: CommentsWithReplies[];
+  userReaction: "liked" | "disliked" | null;
 }

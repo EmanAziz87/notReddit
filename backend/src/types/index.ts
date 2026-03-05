@@ -26,3 +26,9 @@ export type PostsWithExtraData = PostsWithRelations & {
   userReaction: "liked" | "disliked" | null;
   favorited: boolean;
 };
+
+export type CommentsWithExtraData = Prisma.CommentsGetPayload<{
+  include: { author: { select: { id: true; username: true; admin: true } } } & {
+    userReaction: "liked" | "disliked" | null;
+  };
+}>;

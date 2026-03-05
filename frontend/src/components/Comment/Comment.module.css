@@ -1,0 +1,15 @@
+.comment-like-icon {
+  -webkit-mask-image: url("../../assets/icons/arrow-up.svg");
+  mask-image: url("../../assets/icons/arrow-up.svg");
+  cursor: pointer;
+}
+
+.comment-dislike-icon {
+  -webkit-mask-image: url("../../assets/icons/arrow-down.svg");
+  mask-image: url("../../assets/icons/arrow-down.svg");
+  cursor: pointer;
+}
+
+.comment-like-dislike-container {
+  display: flex;
+}

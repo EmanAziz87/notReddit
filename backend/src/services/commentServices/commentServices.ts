@@ -55,8 +55,10 @@ const replyCommentService = async (
   });
 };
 
-const getAllCommentsForPostService = async (postId: number) => {
-  postFoundOrThrow(postId);
+const getAllCommentsForPostService = async (postId: number, userId: number) => {
+  await postFoundOrThrow(postId);
+  // find difference between likes and dislikes and use that to update the new likes count for
+  // each comment before returning the nesting the comments and returning them to the client.
   const allComments = await prisma.comments.findMany({
     where: {
       postId: postId,
@@ -71,48 +73,38 @@ const getAllCommentsForPostService = async (postId: number) => {
       },
     },
   });
+  console.log("querying with userId:", userId, "postId:", postId);
+  const commentsLiked = await prisma.commentReaction.findMany({
+    where: {
+      userId: userId,
+      comment: {
+        postId,
+      },
+    },
+  });
+  console.log("commentsLiked result:", commentsLiked);
 
-  // convert the below logic to comment reaction. change commentReact find unique to find many.
-  // find many of the comment reactions and pass it into the build comment tree function.
-  // In the function, attach userReaction to each comment based on whether the commentId for each
-  // returned commentReaction matches the nestedComments comment.
+  const commentReactionsArr: {
+    commentId: number;
+    userReaction: "liked" | "disliked" | null;
+  }[] = [];
 
-  // on the frontend, copy the useSetPostReactionMutation to use for comments. obviously make adjustments
-  // to account for the fact that we are working with nested arrays here, so mutation are going to be a little
-  // bit more complicated. In the future we will think about sharing a function for setting both post likes and
-  // comment likes.
+  commentsLiked.forEach((comment) => {
+    let userReaction: "liked" | "disliked" | null = null;
+    const obj = { commentId: comment.commentId };
 
-  // const postLikedAlready = await prisma.postReaction.findUnique({
-  //   where: {
-  //     userId_postId: {
-  //       userId: userId,
-  //       postId: postId,
-  //     },
-  //   },
-  // });
+    if (comment.type === "LIKE") {
+      userReaction = "liked";
+    }
 
-  // let userReaction: "liked" | "disliked" | null = null;
-  // let favorited: boolean = true;
+    if (comment.type === "DISLIKE") {
+      userReaction = "disliked";
+    }
 
-  // if (postLikedAlready?.type === "LIKE") {
-  //   userReaction = "liked";
-  // }
+    commentReactionsArr.push({ ...obj, userReaction });
+  });
 
-  // if (postLikedAlready?.type === "DISLIKE") {
-  //   userReaction = "disliked";
-  // }
-
-  // if (!postFavoritedAlready) {
-  //   favorited = false;
-  // }
-
-  // return {
-  //   ...foundPost,
-  //   userReaction: userReaction,
-  //   favorited,
-  // };
-
-  return buildCommentTree(allComments);
+  return buildCommentTree(allComments, commentReactionsArr);
 };
 
 const editCommentService = async (

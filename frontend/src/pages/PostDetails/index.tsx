@@ -17,7 +17,7 @@ const PostDetails = () => {
   }>();
 
   const {
-    data: commentsData,
+    data: nestedComments,
     isLoading: commentsLoading,
     error: commentsError,
   } = useQuery({
@@ -85,7 +85,7 @@ const PostDetails = () => {
       </div>
     );
 
-  if (!postData || !commentsData) return null;
+  if (!postData || !nestedComments) return null;
 
   return (
     <div>
@@ -135,11 +135,13 @@ const PostDetails = () => {
             setActiveReplyInput={null}
           />
           <div>
-            {commentsData.nestedComments.map((c: CommentsWithReplies) => (
+            {nestedComments.map((c: CommentsWithReplies) => (
               <div key={c.id}>
                 <Comment
                   comment={c}
                   handleCommentSubmit={handleCommentSubmit}
+                  postId={postId!}
+                  communityId={communityId!}
                 />
               </div>
             ))}

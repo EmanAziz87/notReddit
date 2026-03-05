@@ -3,7 +3,7 @@ import { api } from "./axios";
 const fetchCommentsForPost = async (postId: string) => {
   const response = await api.get(`/comments/post/${postId}`);
   console.log("RETURNED COMMENT TREE: ", response.data);
-  return response.data;
+  return response.data.nestedComments;
 };
 
 const createCommentService = async (postId: string, content: string) => {
@@ -18,8 +18,19 @@ const replyCommentService = async (
   await api.post(`/comments/post/${postId}/${parentId}/reply`, { content });
 };
 
+const setCommentReactionService = async (
+  postId: string,
+  commentId: string,
+  reaction: "LIKE" | "DISLIKE" | "NONE",
+) => {
+  await api.post(
+    `/comments/post/${postId}/${commentId}/${reaction}/setReaction`,
+  );
+};
+
 export default {
   fetchCommentsForPost,
   createCommentService,
   replyCommentService,
+  setCommentReactionService,
 };
