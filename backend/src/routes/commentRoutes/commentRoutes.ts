@@ -1,10 +1,8 @@
 import express from "express";
 import {
   CommentParamsData,
-  CommentReactionData,
   CreateCommentData,
   type CommentParams,
-  type CommentReaction,
   type CreateCommentInput,
 } from "./commentSchema";
 import commentServices from "../../services/commentServices/commentServices";
@@ -162,32 +160,6 @@ commentRouter.post(
         status: "SUCCESS",
         message: "Successfully liked comment",
         likedComment,
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
-
-commentRouter.put(
-  "/post/:postId/:commentId/dislike",
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const validatedParams: CommentParams = CommentParamsData.parse(
-        req.params,
-      );
-
-      const dislikedComment = await commentServices.dislikedCommentService(
-        validatedParams.postId,
-        validatedParams.commentId!,
-        req.session.userId,
-      );
-
-      res.status(201).json({
-        status: "SUCCESS",
-        message: "Successfully disliked comment",
-        dislikedComment,
       });
     } catch (err) {
       next(err);

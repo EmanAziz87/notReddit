@@ -1,9 +1,5 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import {
-  Prisma,
-  ReactionType,
-  type Posts,
-} from "../../../generated/prisma/client";
+import { type Posts } from "../../../generated/prisma/client";
 import { InvalidRequestError } from "../../lib/appErrors";
 import prisma from "../../lib/prisma";
 import {
