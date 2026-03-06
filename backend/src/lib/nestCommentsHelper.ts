@@ -12,10 +12,6 @@ export const buildCommentTree = (
   const roots: CommentsWithExtraData[] = [];
 
   comments.forEach((comment) => {
-    const userReaction =
-      commentReactionsArr.find((c) => c.commentId === comment.id)
-        ?.userReaction ?? null;
-    console.log("comment id:", comment.id, "userReaction:", userReaction);
     map.set(comment.id, {
       ...comment,
       replies: [],

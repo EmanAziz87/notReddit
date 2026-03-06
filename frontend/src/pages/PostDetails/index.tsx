@@ -141,7 +141,6 @@ const PostDetails = () => {
                   comment={c}
                   handleCommentSubmit={handleCommentSubmit}
                   postId={postId!}
-                  communityId={communityId!}
                 />
               </div>
             ))}

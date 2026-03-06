@@ -59,6 +59,14 @@ const getAllCommentsForPostService = async (postId: number, userId: number) => {
   await postFoundOrThrow(postId);
   // find difference between likes and dislikes and use that to update the new likes count for
   // each comment before returning the nesting the comments and returning them to the client.
+  const commentsLiked = await prisma.commentReaction.findMany({
+    where: {
+      userId: userId,
+      comment: {
+        postId,
+      },
+    },
+  });
   const allComments = await prisma.comments.findMany({
     where: {
       postId: postId,
@@ -73,16 +81,6 @@ const getAllCommentsForPostService = async (postId: number, userId: number) => {
       },
     },
   });
-  console.log("querying with userId:", userId, "postId:", postId);
-  const commentsLiked = await prisma.commentReaction.findMany({
-    where: {
-      userId: userId,
-      comment: {
-        postId,
-      },
-    },
-  });
-  console.log("commentsLiked result:", commentsLiked);
 
   const commentReactionsArr: {
     commentId: number;

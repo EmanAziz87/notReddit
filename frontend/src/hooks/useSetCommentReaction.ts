@@ -1,82 +1,72 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CommentsWithReplies, ReactionMutation } from "../types";
+import type { CommentReactionMutation, CommentsWithReplies } from "../types";
 import commentService from "../api/commentService";
 import { useRef } from "react";
 
 export const useSetCommentReaction = (
-  communityId: string | undefined,
+  commentId: number | undefined,
   postId: string | undefined,
 ) => {
   const queryClient = useQueryClient();
 
-  const applyOptimisticUpdate = (
-    comment: CommentsWithReplies,
-    reaction: "LIKE" | "DISLIKE",
-  ): CommentsWithReplies => {
-    const current = comment.userReaction;
-    const nextReaction =
-      (reaction === "LIKE" && current === "liked") ||
-      (reaction === "DISLIKE" && current === "disliked")
-        ? "NONE"
-        : reaction;
-    let likes = comment.likes;
-    const prevReaction = comment.userReaction;
-
-    if (nextReaction === "LIKE") {
-      if (prevReaction === "disliked") likes += 1;
-      else if (prevReaction !== "liked") likes += 1;
-    } else if (nextReaction === "DISLIKE") {
-      if (prevReaction === "liked") likes -= 1;
-      else if (prevReaction !== "disliked") likes -= 1;
-    } else if (nextReaction === "NONE") {
-      if (prevReaction === "liked") likes -= 1;
-      if (prevReaction === "disliked") likes += 1;
-    }
-
-    const commentWithNewReaction: CommentsWithReplies = {
-      ...comment,
-      likes,
-      userReaction:
-        nextReaction === "NONE"
-          ? null
-          : nextReaction === "LIKE" && prevReaction === "disliked"
-            ? null
-            : nextReaction === "DISLIKE" && prevReaction === "liked"
-              ? null
-              : nextReaction === "LIKE"
-                ? "liked"
-                : "disliked",
-    };
-
-    return commentWithNewReaction;
-  };
-
   const dfsForOptimisticUpdate = (
     nestedComments: CommentsWithReplies[],
     reaction: "LIKE" | "DISLIKE",
-    commentId: string,
+    commentId: number,
   ): CommentsWithReplies[] => {
-    for (let i = 0; i < nestedComments.length; i++) {
-      if (i + 1 === nestedComments.length) continue;
+    return nestedComments.map((comment) => {
+      if (comment.id === commentId) {
+        const current = comment.userReaction;
+        const nextReaction =
+          (reaction === "LIKE" && current === "liked") ||
+          (reaction === "DISLIKE" && current === "disliked")
+            ? "NONE"
+            : reaction;
+        console.log("likes before", comment.likes);
+        let likes = comment.likes;
+        const prevReaction = comment.userReaction;
 
-      if (nestedComments[i].id === Number(commentId)) {
-        nestedComments[i] = applyOptimisticUpdate(nestedComments[i], reaction);
-        break;
+        if (nextReaction === "LIKE") {
+          if (prevReaction === "disliked") likes += 1;
+          else if (prevReaction !== "liked") likes += 1;
+        } else if (nextReaction === "DISLIKE") {
+          if (prevReaction === "liked") likes -= 1;
+          else if (prevReaction !== "disliked") likes -= 1;
+        } else if (nextReaction === "NONE") {
+          if (prevReaction === "liked") likes -= 1;
+          if (prevReaction === "disliked") likes += 1;
+        }
+        console.log("likes after", likes);
+        console.log("comment before reaction: ", comment);
+
+        return {
+          ...comment,
+          likes,
+          userReaction:
+            nextReaction === "NONE"
+              ? null
+              : nextReaction === "LIKE" && prevReaction === "disliked"
+                ? null
+                : nextReaction === "DISLIKE" && prevReaction === "liked"
+                  ? null
+                  : nextReaction === "LIKE"
+                    ? "liked"
+                    : "disliked",
+        };
       }
-
-      dfsForOptimisticUpdate(nestedComments[i].replies, reaction, commentId);
-    }
-    return nestedComments;
+      return {
+        ...comment,
+        replies: dfsForOptimisticUpdate(comment.replies, reaction, commentId),
+      };
+    });
   };
 
   const dfsFindComment = (
     nestedComments: CommentsWithReplies[],
-    commentId: string,
+    commentId: number,
   ): CommentsWithReplies | null => {
     for (let i = 0; i < nestedComments.length; i++) {
-      if (i + 1 === nestedComments.length) continue;
-
-      if (nestedComments[i].id === Number(commentId)) return nestedComments[i];
+      if (nestedComments[i].id === commentId) return nestedComments[i];
 
       dfsFindComment(nestedComments[i].replies, commentId);
     }
@@ -84,9 +74,9 @@ export const useSetCommentReaction = (
   };
 
   const setCommentReactionMutation = useMutation({
-    mutationFn: async (vars: ReactionMutation) => {
+    mutationFn: async (vars: CommentReactionMutation) => {
       await commentService.setCommentReactionService(
-        vars.communityId,
+        vars.commentId,
         vars.postId,
         vars.reaction,
       );
@@ -105,6 +95,7 @@ export const useSetCommentReaction = (
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleReaction = (reaction: "LIKE" | "DISLIKE") => {
+    console.log("entered handle reaction");
     const commentsCache = queryClient.getQueryData<CommentsWithReplies[]>([
       "comments",
       postId,
@@ -113,21 +104,29 @@ export const useSetCommentReaction = (
     const updatedComments = dfsForOptimisticUpdate(
       commentsCache!,
       reaction,
-      communityId!,
+      commentId!,
     );
-    queryClient.setQueryData(["comments", postId], updatedComments);
+    queryClient.setQueryData(["comments", postId], [...updatedComments]);
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       const finalCachedComments = queryClient.getQueryData<
         CommentsWithReplies[]
-      >(["post", postId]);
+      >(["comments", postId]);
+
       const finalUserReaction = dfsFindComment(
         finalCachedComments!,
-        communityId!,
+        commentId!,
       )?.userReaction;
+
+      console.log(
+        "final cached comments before api call: ",
+        finalCachedComments,
+      );
+      console.log("final user reaction: ", finalUserReaction);
+
       setCommentReactionMutation.mutate({
-        communityId: communityId!,
+        commentId: commentId!,
         postId: postId!,
         reaction:
           finalUserReaction === "liked"
@@ -144,4 +143,3 @@ export const useSetCommentReaction = (
 
   return { handleCommentLike, handleCommentDislike };
 };
-Comment;

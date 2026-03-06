@@ -19,8 +19,8 @@ const replyCommentService = async (
 };
 
 const setCommentReactionService = async (
+  commentId: number,
   postId: string,
-  commentId: string,
   reaction: "LIKE" | "DISLIKE" | "NONE",
 ) => {
   await api.post(

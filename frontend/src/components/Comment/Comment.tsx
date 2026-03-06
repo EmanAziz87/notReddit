@@ -8,7 +8,6 @@ const Comment = ({
   comment,
   handleCommentSubmit,
   postId,
-  communityId,
 }: {
   comment: CommentsWithReplies;
   handleCommentSubmit: (
@@ -18,14 +17,13 @@ const Comment = ({
     parentId: number | null,
   ) => void;
   postId: string;
-  communityId: string;
 }) => {
   const [activeReplyInputId, setActiveReplyInputId] = useState<number | null>(
     null,
   );
 
   const { handleCommentLike, handleCommentDislike } = useSetCommentReaction(
-    communityId,
+    comment.id,
     postId,
   );
 
@@ -74,7 +72,6 @@ const Comment = ({
               comment={c}
               handleCommentSubmit={handleCommentSubmit}
               postId={postId}
-              communityId={communityId}
             />
           </div>
         );

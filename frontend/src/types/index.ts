@@ -6,6 +6,12 @@ export interface ReactionMutation {
   reaction: "LIKE" | "DISLIKE" | "NONE";
 }
 
+export interface CommentReactionMutation {
+  commentId: number;
+  postId: string;
+  reaction: "LIKE" | "DISLIKE" | "NONE";
+}
+
 export interface CachedPost {
   fetchedPost: PostsWithExtraData;
 }
