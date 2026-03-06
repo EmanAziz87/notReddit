@@ -156,6 +156,8 @@ const setCommentReactionService = async (
 ) => {
   postFoundOrThrow(postId);
 
+  console.log("set reaction service for comment. reaction: ", reaction);
+
   if (reaction === "NONE") {
     await prisma.commentReaction.deleteMany({
       where: { userId: userId, commentId },

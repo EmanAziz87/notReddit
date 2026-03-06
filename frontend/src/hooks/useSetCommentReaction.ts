@@ -66,9 +66,13 @@ export const useSetCommentReaction = (
     commentId: number,
   ): CommentsWithReplies | null => {
     for (let i = 0; i < nestedComments.length; i++) {
-      if (nestedComments[i].id === commentId) return nestedComments[i];
+      if (nestedComments[i].id === commentId) {
+        console.log("dfs find function: ", nestedComments[i]);
+        return nestedComments[i];
+      }
 
-      dfsFindComment(nestedComments[i].replies, commentId);
+      const found = dfsFindComment(nestedComments[i].replies, commentId);
+      if (found) return found;
     }
     return null;
   };
