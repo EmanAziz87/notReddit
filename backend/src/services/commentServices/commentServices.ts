@@ -57,8 +57,6 @@ const replyCommentService = async (
 
 const getAllCommentsForPostService = async (postId: number, userId: number) => {
   await postFoundOrThrow(postId);
-  // find difference between likes and dislikes and use that to update the new likes count for
-  // each comment before returning the nesting the comments and returning them to the client.
   const commentsLiked = await prisma.commentReaction.findMany({
     where: {
       userId: userId,
@@ -183,62 +181,6 @@ const setCommentReactionService = async (
   });
 };
 
-const dislikedCommentService = async (
-  postId: number,
-  commentId: number,
-  userId: number,
-) => {
-  postFoundOrThrow(postId);
-
-  const foundCommentReaction = await prisma.commentReaction.findUnique({
-    where: {
-      userId_commentId: {
-        userId: userId,
-        commentId: commentId,
-      },
-    },
-  });
-
-  return await prisma.$transaction(async (tx) => {
-    if (!foundCommentReaction) {
-      await tx.commentReaction.create({
-        data: {
-          userId: userId,
-          commentId: commentId,
-          type: "DISLIKE",
-        },
-      });
-      return await tx.comments.update({
-        where: {
-          id: commentId,
-        },
-        data: {
-          likes: { decrement: 1 },
-        },
-      });
-    } else if (foundCommentReaction.type === "LIKE") {
-      await tx.commentReaction.delete({
-        where: {
-          userId_commentId: {
-            userId: userId,
-            commentId: commentId,
-          },
-        },
-      });
-      return await tx.comments.update({
-        where: {
-          id: commentId,
-        },
-        data: {
-          likes: { decrement: 1 },
-        },
-      });
-    } else {
-      throw new ConflictError("Already disliked that comment");
-    }
-  });
-};
-
 export default {
   createCommentService,
   replyCommentService,
@@ -246,5 +188,4 @@ export default {
   editCommentService,
   deleteCommentService,
   setCommentReactionService,
-  dislikedCommentService,
 };
