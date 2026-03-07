@@ -1,16 +1,21 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import style from "./PostDetails.module.css";
 import { useSetPostReaction } from "../../hooks/useSetPostReaction";
 import { useGetPost } from "../../hooks/useGetPost";
 import { useSetPostFavorite } from "../../hooks/useSetPostFavorite";
 import Comment from "../../components/Comment/Comment";
-import type { CommentsWithReplies } from "../../types";
+import type { CommentsWithReplies, PostDeleteMutation } from "../../types";
 import CommentForm from "../../components/CommentForm/CommentForm";
 import { useGetPostComments } from "../../hooks/useGetPostComments";
 import { useSetPostComment } from "../../hooks/useSetPostComment";
 import { useGetCurrentUser } from "../../hooks/useGetCurrentUser";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import postService from "../../api/postService";
+import type { PostsWithExtraData } from "backend";
 
 const PostDetails = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { communityId, postId } = useParams<{
     communityId: string;
     postId: string;

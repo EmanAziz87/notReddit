@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import postService from "../../api/postService";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import type { PostsWithMinimalRelations } from "backend";
 
 const HomeFeed = () => {
+  const navigate = useNavigate();
   const {
     data: allFetchedPosts,
     isLoading,
@@ -23,15 +24,21 @@ const HomeFeed = () => {
       <ul>
         {allFetchedPosts.map((post: PostsWithMinimalRelations) => {
           return (
-            <NavLink to={`/post/${post.communityId}/${post.id}`} key={post.id}>
-              <div>{post.title}</div>
-              <div>{post.author.username}</div>
-              <img src={post.mediaUrl[0]} alt="" width={300} height={300} />
-              <div>{post.content}</div>
-              <div>Likes: {post.likes}</div>
-              <div>Dislikes: {post.dislikes}</div>
-              <br />
-            </NavLink>
+            <div key={post.id}>
+              <NavLink to={`/post/${post.communityId}/${post.id}`}>
+                <div>{post.title}</div>
+              </NavLink>
+              <NavLink to={`/community/${post.communityId}`}>
+                {post.community.name}
+              </NavLink>
+              <NavLink to={`/post/${post.communityId}/${post.id}`}>
+                <div>{post.author.username}</div>
+                <img src={post.mediaUrl[0]} alt="" width={300} height={300} />
+                <div>{post.content}</div>
+                <div>Likes: {post.likes}</div>
+                <br />
+              </NavLink>
+            </div>
           );
         })}
       </ul>

@@ -12,6 +12,8 @@ import PostDetails from "./pages/PostDetails";
 import Login from "./pages/Login";
 import userService from "./api/userService";
 import Profile from "./pages/Profile";
+import Community from "./pages/Community/Community";
+import CreatePostForm from "./pages/CreatPostForm/CreatePostForm";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -57,6 +59,11 @@ function AppContent() {
           <Route index element={<HomeFeed />} />
           <Route path="post/:communityId/:postId" element={<PostDetails />} />
           <Route path="profile/:profileId" element={<Profile />} />
+          <Route path="community/:communityId/" element={<Community />} />
+          <Route
+            path="community/:communityId/createPost"
+            element={<CreatePostForm />}
+          />
         </Route>
         <Route path="login" element={<Login />} />
       </Routes>
