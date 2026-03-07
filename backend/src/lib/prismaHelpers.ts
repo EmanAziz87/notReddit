@@ -194,3 +194,20 @@ export const memberOfConversationOrThrow = async (
     throw new NotFoundError("The user does not belong to that conversation");
   }
 };
+
+export const isCommentOwnerOrThrow = async (
+  commentId: number,
+  userId: number,
+): Promise<void> => {
+  const foundComment = await prisma.comments.findUnique({
+    where: {
+      id: commentId,
+      authorId: userId,
+    },
+  });
+
+  if (!foundComment)
+    throw new UnauthorizedError(
+      "The user does not have permission to delete that comment",
+    );
+};

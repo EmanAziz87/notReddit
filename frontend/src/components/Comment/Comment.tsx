@@ -3,6 +3,8 @@ import type { CommentsWithReplies } from "../../types";
 import CommentForm from "../CommentForm/CommentForm";
 import style from "./Comment.module.css";
 import { useSetCommentReaction } from "../../hooks/useSetCommentReaction";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UserSession } from "backend";
 
 const Comment = ({
   comment,

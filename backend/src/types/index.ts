@@ -32,3 +32,7 @@ export type CommentsWithExtraData = Prisma.CommentsGetPayload<{
     userReaction: "liked" | "disliked" | null;
   };
 }>;
+
+export type UserSession = Prisma.UsersGetPayload<{
+  select: { id: true; username: true; email: true; admin: true };
+}>;

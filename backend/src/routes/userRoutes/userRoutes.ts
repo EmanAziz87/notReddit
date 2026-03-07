@@ -3,9 +3,10 @@ import { UserRegisterSchema, UserLoginSchema } from "./userSchemas";
 import prisma from "../../lib/prisma";
 import type { UserLoginInput, UserRegisterInput } from "./userSchemas";
 import { setSession } from "../../lib/setSession";
-import { UnauthorizedError } from "../../lib/appErrors";
+import { NotFoundError, UnauthorizedError } from "../../lib/appErrors";
 import { SESSION_COOKIE_NAME } from "../../util/sessionName";
 import userServices from "../../services/userServices/userServices";
+import type { UserSession } from "../../types";
 
 const userRoute = express.Router();
 
@@ -60,12 +61,16 @@ userRoute.get("/me", async (req, res, next) => {
       throw new UnauthorizedError();
     }
 
-    const user = await prisma.users.findUnique({
+    const user: UserSession | null = await prisma.users.findUnique({
       where: { id: req.session.userId },
-      select: { username: true, email: true },
+      select: { id: true, username: true, email: true, admin: true },
     });
 
-    res.json(user);
+    if (!user) {
+      throw new NotFoundError("The user was not found");
+    }
+
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }

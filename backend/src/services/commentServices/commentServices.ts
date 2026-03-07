@@ -1,6 +1,9 @@
 import { buildCommentTree } from "../../lib/nestCommentsHelper";
 import prisma from "../../lib/prisma";
-import { postFoundOrThrow } from "../../lib/prismaHelpers";
+import {
+  isCommentOwnerOrThrow,
+  postFoundOrThrow,
+} from "../../lib/prismaHelpers";
 import type { CreateCommentInput } from "../../routes/commentRoutes/commentSchema";
 import type { CommentWithRelations } from "./typesCommentServices";
 
@@ -135,7 +138,8 @@ const deleteCommentService = async (
   commentId: number,
   userId: number,
 ): Promise<void> => {
-  postFoundOrThrow(postId);
+  await postFoundOrThrow(postId);
+  await isCommentOwnerOrThrow(commentId, userId);
 
   await prisma.comments.delete({
     where: {
