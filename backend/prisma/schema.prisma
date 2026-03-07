@@ -32,7 +32,7 @@ model Comments {
   postId   Int
   authorId Int
   author   Users  @relation(fields: [authorId], references: [id])
-  post     Posts  @relation(fields: [postId], references: [id])
+  post     Posts  @relation(fields: [postId], references: [id], onDelete: Cascade)
   parent   Comments? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  Comments[] @relation("CommentReplies")
   commentLikes  CommentReaction[]
@@ -115,7 +115,7 @@ model PostReaction {
   postId      Int
   type        ReactionType
   user        Users     @relation(fields: [userId], references: [id])      
-  post        Posts     @relation(fields: [postId], references: [id])
+  post        Posts     @relation(fields: [postId], references: [id], onDelete: Cascade)
   likedAt     DateTime    @default(now())
 
   @@id([userId, postId])
@@ -136,7 +136,7 @@ model FavoritedPosts {
   userId      Int
   postId      Int
   user        Users     @relation(fields: [userId], references: [id])      
-  post        Posts     @relation(fields: [postId], references: [id])
+  post        Posts     @relation(fields: [postId], references: [id], onDelete: Cascade)
   favoritedAt DateTime    @default(now())
 
   @@id([userId, postId])

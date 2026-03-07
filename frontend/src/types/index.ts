@@ -17,6 +17,11 @@ export interface CommentDeleteMutation {
   postId: string;
 }
 
+export interface PostDeleteMutation {
+  communityId: string;
+  postId: string;
+}
+
 export interface CachedPost {
   fetchedPost: PostsWithExtraData;
 }

@@ -33,4 +33,13 @@ const setFavorite = async (
   });
 };
 
-export default { fetchAllPosts, fetchPost, setReaction, setFavorite };
+const deletePost = async (communityId: string, postId: string) =>
+  await api.delete(`/posts/community/${communityId}/post/${postId}`);
+
+export default {
+  fetchAllPosts,
+  fetchPost,
+  setReaction,
+  setFavorite,
+  deletePost,
+};

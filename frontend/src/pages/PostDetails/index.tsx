@@ -34,6 +34,33 @@ const PostDetails = () => {
   const { handleFavorite } = useSetPostFavorite(communityId, postId);
   const { handleCommentSubmit } = useSetPostComment(postId!);
 
+  const deletePostMutation = useMutation({
+    mutationFn: async (postDeleteObj: PostDeleteMutation) =>
+      await postService.deletePost(
+        postDeleteObj.communityId,
+        postDeleteObj.postId,
+      ),
+    onMutate: () => {
+      const previousPost = queryClient.getQueryData<PostsWithExtraData>([
+        "post",
+        postId,
+      ]);
+      return previousPost;
+    },
+    onError: (_error, _variables, previousPost) => {
+      queryClient.setQueryData(["post", postId], previousPost);
+      console.error("error deleting post, rolling back changes");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allPosts"] });
+      navigate("/");
+    },
+  });
+
+  const handleDeletePost = () => {
+    deletePostMutation.mutate({ communityId: communityId!, postId: postId! });
+  };
+
   if (postLoading && commentsLoading && userLoading)
     return <div>Loading...</div>;
   if (postError && commentsError)
@@ -91,7 +118,7 @@ const PostDetails = () => {
           </div>
         </div>
         {postData.fetchedPost.authorId === currentUser?.id && (
-          <button>Delete</button>
+          <button onClick={handleDeletePost}>Delete</button>
         )}
 
         <div>
