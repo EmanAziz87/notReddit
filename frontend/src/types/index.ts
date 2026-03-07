@@ -12,6 +12,11 @@ export interface CommentReactionMutation {
   reaction: "LIKE" | "DISLIKE" | "NONE";
 }
 
+export interface CommentDeleteMutation {
+  commentId: number;
+  postId: string;
+}
+
 export interface CachedPost {
   fetchedPost: PostsWithExtraData;
 }

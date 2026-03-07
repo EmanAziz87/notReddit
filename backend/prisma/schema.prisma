@@ -126,7 +126,7 @@ model CommentReaction {
   commentId   Int
   type        ReactionType
   user        Users   @relation(fields: [userId], references: [id])
-  comment     Comments @relation(fields: [commentId], references: [id])
+  comment     Comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
   likedAt     DateTime @default(now())
   
   @@id([userId, commentId])

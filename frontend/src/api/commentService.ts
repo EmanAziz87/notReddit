@@ -28,9 +28,14 @@ const setCommentReactionService = async (
   );
 };
 
+const deleteCommentService = async (postId: string, commentId: number) => {
+  await api.delete(`/comments/post/${postId}/${commentId}/delete`);
+};
+
 export default {
   fetchCommentsForPost,
   createCommentService,
   replyCommentService,
   setCommentReactionService,
+  deleteCommentService,
 };
