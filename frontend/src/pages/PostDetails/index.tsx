@@ -46,6 +46,7 @@ const PostDetails = () => {
       <div>
         <div>Post Details</div>
         <div>{postData.fetchedPost.title}</div>
+        <div>{postData.fetchedPost.author.username}</div>
         {postData.fetchedPost.mediaUrl[0] && (
           <img
             src={postData.fetchedPost.mediaUrl[0]}

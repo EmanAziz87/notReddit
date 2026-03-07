@@ -36,3 +36,11 @@ export type CommentsWithExtraData = Prisma.CommentsGetPayload<{
 export type UserSession = Prisma.UsersGetPayload<{
   select: { id: true; username: true; email: true; admin: true };
 }>;
+
+export type PostsWithMinimalRelations = Prisma.PostsGetPayload<{
+  include: {
+    community: true;
+
+    author: { select: { id: true; username: true; admin: true } };
+  };
+}>;

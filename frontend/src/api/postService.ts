@@ -2,7 +2,7 @@ import { api } from "./axios";
 
 const fetchAllPosts = async () => {
   const response = await api.get(`/posts`);
-  return response.data;
+  return response.data.allFetchedPosts;
 };
 
 const fetchPost = async (communityId: string, postId: string) => {

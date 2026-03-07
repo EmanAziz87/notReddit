@@ -13,7 +13,11 @@ import type { CreatePostInput } from "../../routes/postRoutes/postSchema";
 import type { UserNoSensitiveInfo } from "../../types/express-session";
 import s3Client from "../../util/s3client";
 import type { FollowedCommunitiesWithRelations } from "./typesPostServices";
-import type { PostsWithExtraData, PostsWithRelations } from "../../types";
+import type {
+  PostsWithExtraData,
+  PostsWithMinimalRelations,
+  PostsWithRelations,
+} from "../../types";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -40,8 +44,19 @@ const createPostService = async (
   });
 };
 
-const getAllPosts = async (): Promise<Array<Posts>> => {
-  return prisma.posts.findMany();
+const getAllPosts = async (): Promise<PostsWithMinimalRelations[]> => {
+  return prisma.posts.findMany({
+    include: {
+      community: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          admin: true,
+        },
+      },
+    },
+  });
 };
 
 const getPostService = async (

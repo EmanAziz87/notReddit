@@ -16,6 +16,7 @@ import {
 } from "./postSchema";
 import postServices from "../../services/postServices/postServices";
 import { cleanUpOrphanedImages } from "../../lib/s3cleanup";
+import type { PostsWithMinimalRelations } from "../../types";
 const postRouter = express.Router();
 
 postRouter.post(
@@ -91,7 +92,8 @@ postRouter.get(
 
 postRouter.get("/", async (_req, res, next) => {
   try {
-    const allFetchedPosts = await postServices.getAllPosts();
+    const allFetchedPosts: PostsWithMinimalRelations[] =
+      await postServices.getAllPosts();
 
     res.status(200).json({
       status: "SUCCESSFULL",
