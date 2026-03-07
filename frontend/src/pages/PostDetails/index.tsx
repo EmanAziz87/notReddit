@@ -3,15 +3,13 @@ import style from "./PostDetails.module.css";
 import { useSetPostReaction } from "../../hooks/useSetPostReaction";
 import { useGetPost } from "../../hooks/useGetPost";
 import { useSetPostFavorite } from "../../hooks/useSetPostFavorite";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import commentService from "../../api/commentService";
 import Comment from "../../components/Comment/Comment";
 import type { CommentsWithReplies } from "../../types";
 import CommentForm from "../../components/CommentForm/CommentForm";
 import { useGetPostComments } from "../../hooks/useGetPostComments";
+import { useSetPostComment } from "../../hooks/useSetPostComment";
 
 const PostDetails = () => {
-  const queryClient = useQueryClient();
   const { communityId, postId } = useParams<{
     communityId: string;
     postId: string;
@@ -23,48 +21,6 @@ const PostDetails = () => {
     error: commentsError,
   } = useGetPostComments(postId!);
 
-  const setPostCommentMutation = useMutation({
-    mutationFn: async ({
-      content,
-      isParent,
-      parentId,
-    }: {
-      content: string;
-      isParent: boolean;
-      parentId: number | null;
-    }) => {
-      if (isParent || !parentId) {
-        await commentService.createCommentService(postId!, content);
-      } else {
-        await commentService.replyCommentService(postId!, content, parentId);
-      }
-    },
-    onMutate: async () => {
-      const previousComments = queryClient.getQueryData(["comments", postId]);
-      return { previousComments };
-    },
-    onError: async (_error, _variables, context) => {
-      queryClient.setQueryData(["comments", postId], context?.previousComments);
-      console.error(
-        "error occured in setPostCommentMutation, rolling back changes on comments",
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-    },
-  });
-
-  const handleCommentSubmit = (
-    e: React.SubmitEvent<HTMLFormElement>,
-    content: string,
-    isParent: boolean,
-    parentId: number | null,
-  ) => {
-    e.preventDefault();
-
-    setPostCommentMutation.mutate({ content, isParent, parentId });
-  };
-
   const {
     data: postData,
     isLoading: postLoading,
@@ -72,8 +28,8 @@ const PostDetails = () => {
   } = useGetPost(communityId, postId);
 
   const { handleLike, handleDislike } = useSetPostReaction(communityId, postId);
-
   const { handleFavorite } = useSetPostFavorite(communityId, postId);
+  const { handleCommentSubmit } = useSetPostComment(postId!);
 
   if (postLoading && commentsLoading) return <div>Loading...</div>;
   if (postError && commentsError)
