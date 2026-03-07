@@ -90,6 +90,10 @@ const PostDetails = () => {
             />
           </div>
         </div>
+        {postData.fetchedPost.authorId === currentUser?.id && (
+          <button>Delete</button>
+        )}
+
         <div>
           <h3>comments</h3>
           {loggedIn && (
