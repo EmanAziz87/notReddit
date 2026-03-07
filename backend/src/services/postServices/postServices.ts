@@ -62,43 +62,47 @@ const getAllPosts = async (): Promise<PostsWithMinimalRelations[]> => {
 const getPostService = async (
   communityId: number,
   postId: number,
-  userId: number,
+  userId: number | undefined,
 ): Promise<PostsWithExtraData> => {
   const foundCommunity = await communityFoundOrThrow(communityId);
   const foundPost = await postFoundOrThrow(postId);
   await postFoundInCommunityOrThrow(foundCommunity, foundPost);
 
-  const postLikedAlready = await prisma.postReaction.findUnique({
-    where: {
-      userId_postId: {
-        userId: userId,
-        postId: postId,
-      },
-    },
-  });
-
-  const postFavoritedAlready = await prisma.favoritedPosts.findUnique({
-    where: {
-      userId_postId: {
-        userId,
-        postId,
-      },
-    },
-  });
-
+  let postLikedAlready;
+  let postFavoritedAlready;
   let userReaction: "liked" | "disliked" | null = null;
-  let favorited: boolean = true;
+  let favorited: boolean = false;
 
-  if (postLikedAlready?.type === "LIKE") {
-    userReaction = "liked";
-  }
+  if (userId) {
+    postLikedAlready = await prisma.postReaction.findUnique({
+      where: {
+        userId_postId: {
+          userId: userId,
+          postId: postId,
+        },
+      },
+    });
 
-  if (postLikedAlready?.type === "DISLIKE") {
-    userReaction = "disliked";
-  }
+    postFavoritedAlready = await prisma.favoritedPosts.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId,
+        },
+      },
+    });
 
-  if (!postFavoritedAlready) {
-    favorited = false;
+    if (postLikedAlready?.type === "LIKE") {
+      userReaction = "liked";
+    }
+
+    if (postLikedAlready?.type === "DISLIKE") {
+      userReaction = "disliked";
+    }
+
+    if (!postFavoritedAlready) {
+      favorited = false;
+    }
   }
 
   return {

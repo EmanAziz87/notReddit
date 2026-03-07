@@ -37,3 +37,8 @@ export interface CommentsWithReplies {
   replies: CommentsWithReplies[];
   userReaction: "liked" | "disliked" | null;
 }
+
+export interface loginData {
+  username: string;
+  password: string;
+}

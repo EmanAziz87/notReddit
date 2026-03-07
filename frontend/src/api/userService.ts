@@ -15,4 +15,8 @@ const login = async (loginDetails: loginData) => {
   return response.data;
 };
 
-export default { fetchMe, login };
+const logout = async () => {
+  await api.delete(`/users/logout`);
+};
+
+export default { fetchMe, login, logout };

@@ -11,6 +11,7 @@ const Comment = ({
   comment,
   handleCommentSubmit,
   postId,
+  loggedIn,
 }: {
   comment: CommentsWithReplies;
   handleCommentSubmit: (
@@ -20,6 +21,7 @@ const Comment = ({
     parentId: number | null,
   ) => void;
   postId: string;
+  loggedIn: boolean;
 }) => {
   const queryClient = useQueryClient();
 
@@ -71,22 +73,24 @@ const Comment = ({
       <div>
         {comment.content} : {comment.author.username}
       </div>
-      <button onClick={() => setActiveReplyInputId(comment.id)}>Reply</button>
+      {loggedIn && (
+        <button onClick={() => setActiveReplyInputId(comment.id)}>Reply</button>
+      )}
       {handleShowDeleteButton()}
       <div className={style["comment-like-dislike-container"]}>
         <div>
           <span
-            onClick={handleCommentLike}
+            onClick={() => (loggedIn ? handleCommentLike() : undefined)}
             className={`icon ${style["comment-like-icon"]}`}
-            style={{ cursor: "pointer" }}
+            style={{ ...(loggedIn ? { cursor: "pointer" } : {}) }}
           />
         </div>
         <div>{comment.likes}</div>
         <div>
           <span
-            onClick={handleCommentDislike}
+            onClick={() => (loggedIn ? handleCommentDislike() : undefined)}
             className={`icon ${style["comment-dislike-icon"]}`}
-            style={{ cursor: "pointer" }}
+            style={{ ...(loggedIn ? { cursor: "pointer" } : {}) }}
           />
         </div>
       </div>
@@ -112,6 +116,7 @@ const Comment = ({
               comment={c}
               handleCommentSubmit={handleCommentSubmit}
               postId={postId}
+              loggedIn={loggedIn}
             />
           </div>
         );

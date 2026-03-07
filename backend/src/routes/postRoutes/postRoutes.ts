@@ -57,7 +57,7 @@ postRouter.get(
       const fetchedPost = await postServices.getPostService(
         validatedParams.communityId,
         validatedParams.postId!,
-        req.session.userId!,
+        req.session.userId,
       );
 
       res.status(200).json({

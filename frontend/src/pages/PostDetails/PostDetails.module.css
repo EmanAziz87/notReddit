@@ -1,13 +1,11 @@
 .like-icon {
   -webkit-mask-image: url("../../assets/icons/arrow-up.svg");
   mask-image: url("../../assets/icons/arrow-up.svg");
-  cursor: pointer;
 }
 
 .dislike-icon {
   -webkit-mask-image: url("../../assets/icons/arrow-down.svg");
   mask-image: url("../../assets/icons/arrow-down.svg");
-  cursor: pointer;
 }
 
 .like-dislike-container {
@@ -17,5 +15,4 @@
 .favorite-icon {
   -webkit-mask-image: url("../../assets/icons/heart.svg");
   mask-image: url("../../assets/icons/heart.svg");
-  cursor: pointer;
 }

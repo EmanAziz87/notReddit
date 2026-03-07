@@ -8,12 +8,15 @@ import type { CommentsWithReplies } from "../../types";
 import CommentForm from "../../components/CommentForm/CommentForm";
 import { useGetPostComments } from "../../hooks/useGetPostComments";
 import { useSetPostComment } from "../../hooks/useSetPostComment";
+import { useGetCurrentUser } from "../../hooks/useGetCurrentUser";
 
 const PostDetails = () => {
   const { communityId, postId } = useParams<{
     communityId: string;
     postId: string;
   }>();
+
+  const { currentUser, userLoading } = useGetCurrentUser();
 
   const {
     data: nestedComments,
@@ -31,7 +34,8 @@ const PostDetails = () => {
   const { handleFavorite } = useSetPostFavorite(communityId, postId);
   const { handleCommentSubmit } = useSetPostComment(postId!);
 
-  if (postLoading && commentsLoading) return <div>Loading...</div>;
+  if (postLoading && commentsLoading && userLoading)
+    return <div>Loading...</div>;
   if (postError && commentsError)
     return (
       <div>
@@ -40,6 +44,9 @@ const PostDetails = () => {
     );
 
   if (!postData || !nestedComments) return null;
+
+  const loggedIn = currentUser ? true : false;
+  console.log("loggedIn value:", loggedIn, "currentUser:", currentUser);
 
   return (
     <div>
@@ -59,36 +66,40 @@ const PostDetails = () => {
         <div className={style["like-dislike-container"]}>
           <div>
             <span
-              onClick={handleLike}
+              onClick={() => (loggedIn ? handleLike() : undefined)}
               className={`icon ${style["like-icon"]}`}
-              style={{ cursor: "pointer" }}
+              style={loggedIn ? { cursor: "pointer" } : undefined}
             />
           </div>
           <div>{postData.fetchedPost.likes}</div>
           <div>
             <span
-              onClick={handleDislike}
+              onClick={() => (loggedIn ? handleDislike() : undefined)}
               className={`icon ${style["dislike-icon"]}`}
+              style={loggedIn ? { cursor: "pointer" } : undefined}
             />
           </div>
           <div>
             <span
-              onClick={handleFavorite}
+              onClick={() => (loggedIn ? handleFavorite() : undefined)}
               className={`icon ${style["favorite-icon"]}`}
               style={{
                 color: postData.fetchedPost.favorited ? "red" : "black",
+                ...(loggedIn ? { cursor: "pointer" } : {}),
               }}
             />
           </div>
         </div>
         <div>
           <h3>comments</h3>
-          <CommentForm
-            handleCommentSubmit={handleCommentSubmit}
-            isParentComment={true}
-            parentId={null}
-            setActiveReplyInput={null}
-          />
+          {loggedIn && (
+            <CommentForm
+              handleCommentSubmit={handleCommentSubmit}
+              isParentComment={true}
+              parentId={null}
+              setActiveReplyInput={null}
+            />
+          )}
           <div>
             {nestedComments.map((c: CommentsWithReplies) => (
               <div key={c.id}>
@@ -96,6 +107,7 @@ const PostDetails = () => {
                   comment={c}
                   handleCommentSubmit={handleCommentSubmit}
                   postId={postId!}
+                  loggedIn={loggedIn}
                 />
               </div>
             ))}

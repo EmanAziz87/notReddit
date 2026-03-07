@@ -57,16 +57,40 @@ const replyCommentService = async (
   });
 };
 
-const getAllCommentsForPostService = async (postId: number, userId: number) => {
+const getAllCommentsForPostService = async (
+  postId: number,
+  userId: number | undefined,
+) => {
   await postFoundOrThrow(postId);
-  const commentsLiked = await prisma.commentReaction.findMany({
-    where: {
-      userId: userId,
-      comment: {
-        postId,
+  const commentReactionsArr: {
+    commentId: number;
+    userReaction: "liked" | "disliked" | null;
+  }[] = [];
+  if (userId) {
+    const commentsLiked = await prisma.commentReaction.findMany({
+      where: {
+        userId: userId,
+        comment: {
+          postId,
+        },
       },
-    },
-  });
+    });
+
+    commentsLiked.forEach((comment) => {
+      let userReaction: "liked" | "disliked" | null = null;
+      const obj = { commentId: comment.commentId };
+
+      if (comment.type === "LIKE") {
+        userReaction = "liked";
+      }
+
+      if (comment.type === "DISLIKE") {
+        userReaction = "disliked";
+      }
+
+      commentReactionsArr.push({ ...obj, userReaction });
+    });
+  }
   const allComments = await prisma.comments.findMany({
     where: {
       postId: postId,
@@ -80,26 +104,6 @@ const getAllCommentsForPostService = async (postId: number, userId: number) => {
         },
       },
     },
-  });
-
-  const commentReactionsArr: {
-    commentId: number;
-    userReaction: "liked" | "disliked" | null;
-  }[] = [];
-
-  commentsLiked.forEach((comment) => {
-    let userReaction: "liked" | "disliked" | null = null;
-    const obj = { commentId: comment.commentId };
-
-    if (comment.type === "LIKE") {
-      userReaction = "liked";
-    }
-
-    if (comment.type === "DISLIKE") {
-      userReaction = "disliked";
-    }
-
-    commentReactionsArr.push({ ...obj, userReaction });
   });
 
   return buildCommentTree(allComments, commentReactionsArr);

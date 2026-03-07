@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CachedPost, ReactionMutation } from "../types";
 import postService from "../api/postService";
 import { useRef } from "react";
+import { useNavigate } from "react-router";
 
 export const useSetPostReaction = (
   communityId: string | undefined,
@@ -67,6 +68,7 @@ export const useSetPostReaction = (
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleReaction = (reaction: "LIKE" | "DISLIKE") => {
+    console.log("applying reaction");
     const cached = queryClient.getQueryData<CachedPost>(["post", postId]);
     const current = cached?.fetchedPost.userReaction;
     const nextReaction =
