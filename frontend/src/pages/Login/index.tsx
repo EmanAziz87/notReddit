@@ -15,7 +15,8 @@ const Login = () => {
       return await userService.login(credentials);
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["me"], data.user);
+      console.log("data.user in login:", data);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
       navigate("/");
     },
     onError: (error) => {
