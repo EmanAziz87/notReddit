@@ -8,6 +8,7 @@ import commentService from "../../api/commentService";
 import Comment from "../../components/Comment/Comment";
 import type { CommentsWithReplies } from "../../types";
 import CommentForm from "../../components/CommentForm/CommentForm";
+import { useGetPostComments } from "../../hooks/useGetPostComments";
 
 const PostDetails = () => {
   const queryClient = useQueryClient();
@@ -20,10 +21,7 @@ const PostDetails = () => {
     data: nestedComments,
     isLoading: commentsLoading,
     error: commentsError,
-  } = useQuery({
-    queryKey: ["comments", postId],
-    queryFn: async () => commentService.fetchCommentsForPost(postId!),
-  });
+  } = useGetPostComments(postId!);
 
   const setPostCommentMutation = useMutation({
     mutationFn: async ({

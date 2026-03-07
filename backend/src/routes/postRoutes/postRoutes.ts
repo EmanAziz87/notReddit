@@ -89,7 +89,7 @@ postRouter.get(
   },
 );
 
-postRouter.get("/", async (req, res, next) => {
+postRouter.get("/", async (_req, res, next) => {
   try {
     const allFetchedPosts = await postServices.getAllPosts();
 

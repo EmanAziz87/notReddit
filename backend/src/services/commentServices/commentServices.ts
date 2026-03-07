@@ -1,4 +1,3 @@
-import { ConflictError } from "../../lib/appErrors";
 import { buildCommentTree } from "../../lib/nestCommentsHelper";
 import prisma from "../../lib/prisma";
 import { postFoundOrThrow } from "../../lib/prismaHelpers";
