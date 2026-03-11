@@ -1,5 +1,4 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { type Posts } from "../../../generated/prisma/client";
 import { InvalidRequestError } from "../../lib/appErrors";
 import prisma from "../../lib/prisma";
 import {
@@ -17,6 +16,7 @@ import type {
   PostsWithExtraData,
   PostsWithMinimalRelations,
   PostsWithRelations,
+  PostsWithRelationsNoComments,
 } from "../../types";
 
 const createPostService = async (
@@ -114,13 +114,12 @@ const getPostService = async (
 
 const getAllCommunityPostsService = async (
   communityId: number,
-): Promise<[PostsWithRelations[], string]> => {
-  const foundCommunity = await communityFoundOrThrow(communityId);
+): Promise<PostsWithRelationsNoComments[]> => {
+  await communityFoundOrThrow(communityId);
 
-  const allPosts = await prisma.posts.findMany({
+  return prisma.posts.findMany({
     include: {
       community: true,
-      comments: true,
       author: {
         select: {
           id: true,
@@ -130,8 +129,6 @@ const getAllCommunityPostsService = async (
       },
     },
   });
-
-  return [allPosts, foundCommunity.name];
 };
 
 const getAllPostsFollowedService = async (

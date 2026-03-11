@@ -19,15 +19,8 @@ export const useSetPostComment = (postId: string) => {
         await commentService.replyCommentService(postId!, content, parentId);
       }
     },
-    onMutate: async () => {
-      const previousComments = queryClient.getQueryData(["comments", postId]);
-      return { previousComments };
-    },
-    onError: async (_error, _variables, context) => {
-      queryClient.setQueryData(["comments", postId], context?.previousComments);
-      console.error(
-        "error occured in setPostCommentMutation, rolling back changes on comments",
-      );
+    onError: async (_error, _variables, _context) => {
+      console.error("there was an error making a comment");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });

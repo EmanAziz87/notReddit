@@ -12,7 +12,7 @@ export type CreatePostInput = z.infer<typeof CreatePost>;
 export const CreatePost = z.object({
   title: z.string(),
   content: z.string(),
-  mediaUrl: z.string().optional(),
+  mediaUrl: z.array(z.string()).optional(),
 });
 
 export type PostParams = z.infer<typeof PostParamsData>;

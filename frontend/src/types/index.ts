@@ -47,3 +47,10 @@ export interface loginData {
   username: string;
   password: string;
 }
+
+export interface PostCreateMutation {
+  communityId: string;
+  title: string;
+  content: string;
+  fileUploadData: FormData;
+}

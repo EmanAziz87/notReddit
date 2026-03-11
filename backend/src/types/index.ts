@@ -22,6 +22,13 @@ export type PostsWithRelations = Prisma.PostsGetPayload<{
   };
 }>;
 
+export type PostsWithRelationsNoComments = Prisma.PostsGetPayload<{
+  include: {
+    community: true;
+    author: { select: { id: true; username: true; admin: true } };
+  };
+}>;
+
 export type PostsWithExtraData = PostsWithRelations & {
   userReaction: "liked" | "disliked" | null;
   favorited: boolean;
