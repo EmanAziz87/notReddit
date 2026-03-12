@@ -47,6 +47,14 @@ const createPost = async (communityId: string, formData: FormData) => {
   });
 };
 
+const editPost = async (
+  communityId: string,
+  postId: string,
+  content: string,
+) => {
+  await api.put(`/posts/community/${communityId}/post/${postId}`, { content });
+};
+
 export default {
   fetchAllPosts,
   fetchPost,
@@ -55,4 +63,5 @@ export default {
   deletePost,
   createPost,
   fetchCommunityPosts,
+  editPost,
 };

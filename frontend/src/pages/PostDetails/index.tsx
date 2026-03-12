@@ -12,6 +12,7 @@ import { useGetCurrentUser } from "../../hooks/useGetCurrentUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import postService from "../../api/postService";
 import type { PostsWithExtraData } from "backend";
+import { useEffect, useState } from "react";
 
 const PostDetails = () => {
   const queryClient = useQueryClient();
@@ -21,6 +22,22 @@ const PostDetails = () => {
     postId: string;
   }>();
 
+  const {
+    data: postData,
+    isLoading: postLoading,
+    error: postError,
+  } = useGetPost(communityId, postId);
+  const [revealEdit, setRevealEdit] = useState<boolean>(false);
+  const [content, setContent] = useState<string>(
+    postData?.fetchedPost.content ?? "",
+  );
+
+  useEffect(() => {
+    if (postData?.fetchedPost.content) {
+      setContent(postData.fetchedPost.content);
+    }
+  }, [postData]);
+
   const { currentUser, userLoading } = useGetCurrentUser();
 
   const {
@@ -29,15 +46,22 @@ const PostDetails = () => {
     error: commentsError,
   } = useGetPostComments(postId!);
 
-  const {
-    data: postData,
-    isLoading: postLoading,
-    error: postError,
-  } = useGetPost(communityId, postId);
-
   const { handleLike, handleDislike } = useSetPostReaction(communityId, postId);
   const { handleFavorite } = useSetPostFavorite(communityId, postId);
   const { handleCommentSubmit } = useSetPostComment(postId!);
+
+  const editPostMutation = useMutation({
+    mutationFn: async (content: string) =>
+      await postService.editPost(communityId!, postId!, content),
+
+    onError: () => {
+      console.error("error editing post");
+    },
+    onSettled: () => {
+      setRevealEdit(false);
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+    },
+  });
 
   const deletePostMutation = useMutation({
     mutationFn: async (postDeleteObj: PostDeleteMutation) =>
@@ -64,6 +88,13 @@ const PostDetails = () => {
 
   const handleDeletePost = () => {
     deletePostMutation.mutate({ communityId: communityId!, postId: postId! });
+  };
+
+  const handleEditPost = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const content = e.target["edit-content-input"].value;
+    console.log(content);
+    editPostMutation.mutate(content);
   };
 
   if (postLoading && commentsLoading && userLoading)
@@ -94,7 +125,20 @@ const PostDetails = () => {
             height={300}
           />
         )}
-        <div>{postData.fetchedPost.content}</div>
+        {revealEdit ? (
+          <form onSubmit={(e) => handleEditPost(e)}>
+            <input
+              type="textarea"
+              value={content}
+              name="edit-content-input"
+              onChange={(e) => setContent(e.currentTarget.value)}
+            />
+            <button type="submit">Confirm Edit</button>
+          </form>
+        ) : (
+          <div>{postData.fetchedPost.content}</div>
+        )}
+
         <div className={style["like-dislike-container"]}>
           <div>
             <span
@@ -123,7 +167,12 @@ const PostDetails = () => {
           </div>
         </div>
         {postData.fetchedPost.authorId === currentUser?.id && (
-          <button onClick={handleDeletePost}>Delete</button>
+          <div>
+            <button onClick={handleDeletePost}>Delete</button>
+            <button onClick={() => setRevealEdit(!revealEdit)}>
+              {revealEdit ? "Cancel" : "Edit"}
+            </button>
+          </div>
         )}
 
         <div>
