@@ -41,8 +41,8 @@ const setFavorite = async (
 const deletePost = async (communityId: string, postId: string) =>
   await api.delete(`/posts/community/${communityId}/post/${postId}`);
 
-const createPost = async (communityId: string, fileUploadData: FormData) => {
-  await api.post(`/posts/community/${communityId}/create`, fileUploadData, {
+const createPost = async (communityId: string, formData: FormData) => {
+  await api.post(`/posts/community/${communityId}/create`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

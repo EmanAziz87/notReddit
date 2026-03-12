@@ -4,6 +4,7 @@ import communityService from "../../api/communityService";
 import type { Communities } from "backend/generated/prisma/client";
 import type { PostsWithRelationsNoComments } from "backend";
 import postService from "../../api/postService";
+import PostCard from "../../components/PostCard";
 
 const Community = () => {
   const { communityId } = useParams();
@@ -29,7 +30,7 @@ const Community = () => {
   if (communityLoading && communityPostsLoading) return <div>Loading...</div>;
   if (communityError && communityPostsError)
     return <div>Post Error: {communityError.message}</div>;
-  if (!communityData && !communityPostsData) return null;
+  if (!communityData || !communityPostsData) return null;
 
   return (
     <div>
@@ -37,6 +38,14 @@ const Community = () => {
       <div>{communityData.description}</div>
       <div>Followers: {communityData.followers}</div>
       <NavLink to={`/community/${communityId}/createPost`}>Create post</NavLink>
+      <br />
+      <div>
+        {communityPostsData.map((post) => (
+          <NavLink to={`/post/${communityId}/${post.id}`}>
+            <PostCard post={post} />
+          </NavLink>
+        ))}
+      </div>
     </div>
   );
 };

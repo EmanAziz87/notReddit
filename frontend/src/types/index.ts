@@ -50,7 +50,5 @@ export interface loginData {
 
 export interface PostCreateMutation {
   communityId: string;
-  title: string;
-  content: string;
-  fileUploadData: FormData;
+  formData: FormData;
 }

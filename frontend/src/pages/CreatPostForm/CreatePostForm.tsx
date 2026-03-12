@@ -20,7 +20,7 @@ const CreatePostForm = () => {
     mutationFn: async (postCreateObj: PostCreateMutation) =>
       await postService.createPost(
         postCreateObj.communityId,
-        postCreateObj.fileUploadData,
+        postCreateObj.formData,
       ),
 
     onError: () => {
@@ -31,7 +31,10 @@ const CreatePostForm = () => {
       // you first have to make the query to grab all communities from the home feed
       // when fetched community posts, create post card component (large - compact later)
       // and use that for rendering post for both community page and home feed.
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({
+        queryKey: ["communityPosts", communityId],
+      });
+      navigate(`/community/${communityId}`);
     },
   });
 
@@ -42,13 +45,13 @@ const CreatePostForm = () => {
     const fileArray = Array.from(
       e.target["post-media-upload-input"].files || [],
     ) as File[];
-    const fileUploads = new FormData();
-    fileArray.forEach((file) => fileUploads.append("postImages", file));
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    fileArray.forEach((file) => formData.append("postImages", file));
 
     createPostMutation.mutate({
-      title,
-      content,
-      fileUploadData: fileUploads,
+      formData,
       communityId: communityId!,
     });
   };
