@@ -100,8 +100,8 @@ const getPostService = async (
       userReaction = "disliked";
     }
 
-    if (!postFavoritedAlready) {
-      favorited = false;
+    if (postFavoritedAlready) {
+      favorited = true;
     }
   }
 

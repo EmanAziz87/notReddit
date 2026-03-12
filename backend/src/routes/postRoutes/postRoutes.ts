@@ -27,6 +27,7 @@ postRouter.post(
     const files = req.files as MulterS3File[];
     const uploadedImageKeys = files.map((file) => file.key);
     try {
+      console.log("reaching here", uploadedImageKeys);
       const validatedData: CreatePostInput = CreatePost.parse(req.body);
       const validatedParams: PostParams = PostParamsData.parse(req.params);
 
@@ -43,6 +44,7 @@ postRouter.post(
         createdPost,
       });
     } catch (err) {
+      console.error("caught error: ", err);
       await cleanUpOrphanedImages(uploadedImageKeys);
       next(err);
     }
