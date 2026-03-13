@@ -5,7 +5,7 @@ export type CreateCommunityInput = z.infer<typeof CreateCommunity>;
 export const CreateCommunity = z.object({
   name: z.string(),
   description: z.string(),
-  public: z.boolean(),
+  public: z.string().transform((val) => val === "true"),
 });
 
 export type EditCommunityInput = z.infer<typeof EditCommunity>;

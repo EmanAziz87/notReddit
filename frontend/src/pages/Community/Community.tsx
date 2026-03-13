@@ -5,6 +5,7 @@ import type { Communities } from "backend/generated/prisma/client";
 import type { PostsWithRelationsNoComments } from "backend";
 import postService from "../../api/postService";
 import PostCard from "../../components/PostCard";
+import styles from "./Community.module.css";
 
 const Community = () => {
   const { communityId } = useParams();
@@ -34,14 +35,30 @@ const Community = () => {
 
   return (
     <div>
-      <h2>{communityData.name}</h2>
+      <div>
+        <img
+          src={communityData.bannerImageUrl}
+          className={styles["community-banner-image"]}
+          alt=""
+        />
+      </div>
+      <div className={styles["community-name-profile-pic-container"]}>
+        <div>
+          <img
+            src={communityData.profileImageUrl}
+            className={styles["community-profile-image"]}
+            alt=""
+          />
+        </div>
+        <h2>{communityData.name}</h2>
+      </div>
       <div>{communityData.description}</div>
       <div>Followers: {communityData.followers}</div>
       <NavLink to={`/community/${communityId}/createPost`}>Create post</NavLink>
       <br />
       <div>
         {communityPostsData.map((post) => (
-          <NavLink to={`/post/${communityId}/${post.id}`}>
+          <NavLink key={post.id} to={`/post/${communityId}/${post.id}`}>
             <PostCard post={post} />
           </NavLink>
         ))}

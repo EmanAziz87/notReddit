@@ -117,18 +117,24 @@ const getAllCommunityPostsService = async (
 ): Promise<PostsWithRelationsNoComments[]> => {
   await communityFoundOrThrow(communityId);
 
-  return prisma.posts.findMany({
-    include: {
-      community: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          admin: true,
+  const communityPosts =
+    (await prisma.posts.findMany({
+      where: {
+        communityId,
+      },
+      include: {
+        community: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            admin: true,
+          },
         },
       },
-    },
-  });
+    })) || [];
+
+  return communityPosts;
 };
 
 const getAllPostsFollowedService = async (

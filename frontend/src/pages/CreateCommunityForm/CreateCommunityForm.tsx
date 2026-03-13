@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./CreateCommunityForm.module.css";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import communityService from "../../api/communityService";
 import { useNavigate } from "react-router";
 import type { Communities } from "backend/generated/prisma/client";
@@ -8,7 +8,6 @@ import type { Communities } from "backend/generated/prisma/client";
 const CreateCommunityForm = () => {
   const [bannerPreview, setBannerPreview] = useState<string[]>([]);
   const [profilePicPreview, setProfilePicPreview] = useState<string[]>([]);
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const createCommunityMutation = useMutation({
@@ -22,7 +21,6 @@ const CreateCommunityForm = () => {
       console.error("error creating community");
     },
     onSettled: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["community"] });
       navigate(`/community/${data?.id}`);
     },
   });
@@ -43,6 +41,10 @@ const CreateCommunityForm = () => {
 
   const handleCreateCommunity = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log(
+      "public or private value: ",
+      e.target["public-private-checkbox-input"].value,
+    );
     const formData = new FormData();
     formData.append(
       "communityProfileImage",
@@ -54,7 +56,10 @@ const CreateCommunityForm = () => {
     );
     formData.append("name", e.target["name-input"].value);
     formData.append("description", e.target["description-input"].value);
-    formData.append("public", e.target["public-private-checkbox-input"].value);
+    formData.append(
+      "public",
+      e.target["public-private-checkbox-input"].checked.toString(),
+    );
     createCommunityMutation.mutate(formData);
   };
 

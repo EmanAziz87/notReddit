@@ -1,0 +1,16 @@
+.community-banner-image {
+  width: 100vw;
+  height: 200px;
+}
+
+.community-profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50px;
+}
+
+.community-name-profile-pic-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
