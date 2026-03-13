@@ -19,17 +19,33 @@ const CreateCommunityForm = () => {
     setBannerPreview(urls);
   };
 
+  const handleCreateCommunity = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append(
+      "communityProfileImage",
+      e.target["communityProfileImage"].files[0],
+    );
+    formData.append(
+      "communityBannerImage",
+      e.target["communityBannerImage"].files[0],
+    );
+    formData.append("name", e.target["name-input"].value);
+    formData.append("description", e.target["description-input"].value);
+    formData.append("public", e.target["public-private-checkbox-input"].value);
+  };
+
   return (
     <div>
       <h3>Create Community</h3>
-      <form>
+      <form onSubmit={handleCreateCommunity}>
         <div>
           <label htmlFor="name-input">Name: </label>
-          <input type="text" name="name-input" id="name-input" />
+          <input type="text" name="name-input" id="name-input" required />
         </div>
         <div>
           <label htmlFor="description-input">Description: </label>
-          <textarea name="description-input" id="description-input" />
+          <textarea name="description-input" id="description-input" required />
         </div>
         <div>
           <label htmlFor="public-private-checkbox-input">Public</label>
@@ -37,6 +53,7 @@ const CreateCommunityForm = () => {
             type="checkbox"
             name="public-private-checkbox-input"
             id="public-private-checkbox-input"
+            required
           />
         </div>
         <div>
@@ -48,6 +65,7 @@ const CreateCommunityForm = () => {
             name="communityProfileImage"
             id="community-profile-image-file-upload"
             onChange={handleProfilePicFileChange}
+            required
           />
         </div>
         {profilePicPreview.map((imgURl) => {
@@ -68,6 +86,7 @@ const CreateCommunityForm = () => {
             name="communityBannerImage"
             id="banner-image-file-upload"
             onChange={handleBannerFileChange}
+            required
           />
         </div>
         {bannerPreview.map((imgUrl) => {
@@ -82,7 +101,7 @@ const CreateCommunityForm = () => {
             </div>
           );
         })}
-        <button>Create</button>
+        <button type="submit">Create</button>
       </form>
     </div>
   );

@@ -1,7 +1,6 @@
 import { Outlet } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import SideBar from "../../components/SideBar";
 import styles from "./RootLayout.module.css";
 
 const RootLayout = () => {
