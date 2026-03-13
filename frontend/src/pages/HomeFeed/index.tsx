@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import postService from "../../api/postService";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink } from "react-router";
 import type { PostsWithMinimalRelations } from "backend";
 
 const HomeFeed = () => {
-  const navigate = useNavigate();
   const {
     data: allFetchedPosts,
     isLoading,

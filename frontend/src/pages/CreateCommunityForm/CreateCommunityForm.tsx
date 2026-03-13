@@ -93,6 +93,7 @@ const CreateCommunityForm = () => {
             name="communityProfileImage"
             id="community-profile-image-file-upload"
             onChange={handleProfilePicFileChange}
+            accept="image/*"
             required
           />
         </div>
@@ -114,6 +115,7 @@ const CreateCommunityForm = () => {
             name="communityBannerImage"
             id="banner-image-file-upload"
             onChange={handleBannerFileChange}
+            accept="image/*"
             required
           />
         </div>

@@ -6,8 +6,10 @@ import type { PostsWithRelationsNoComments } from "backend";
 import postService from "../../api/postService";
 import PostCard from "../../components/PostCard";
 import styles from "./Community.module.css";
+import { useState } from "react";
 
 const Community = () => {
+  const [revealEdit, setRevealEdit] = useState<boolean>(false);
   const { communityId } = useParams();
 
   const {
@@ -37,18 +39,24 @@ const Community = () => {
     <div>
       <div>
         <img
-          src={communityData.bannerImageUrl}
+          src={communityData.bannerImageUrl || undefined}
           className={styles["community-banner-image"]}
           alt=""
         />
       </div>
       <div className={styles["community-name-profile-pic-container"]}>
         <div>
-          <img
-            src={communityData.profileImageUrl}
-            className={styles["community-profile-image"]}
-            alt=""
-          />
+          <label>
+            <img
+              src={communityData.profileImageUrl || undefined}
+              className={styles["community-profile-image"]}
+              alt="profile-image"
+            />
+            <div className={styles["edit-profile-pic-overlay"]}>
+              <span>Edit</span>
+            </div>
+            <input type="file" className={styles["edit-profile-pic-input"]} />
+          </label>
         </div>
         <h2>{communityData.name}</h2>
       </div>
