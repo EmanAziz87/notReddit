@@ -1,38 +1,15 @@
 import { NavLink, useNavigate } from "react-router";
 import styles from "./Header.module.css";
 import userService from "../../api/userService";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { UserSession } from "backend";
+import { useLogout } from "../../hooks/useLogout";
 
 const Header = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { data: user, isLoading } = useQuery<UserSession>({
-    queryKey: ["me"],
-    queryFn: async () => await userService.fetchMe(),
-    staleTime: 1000 * 60 * 5,
-  });
 
-  const userLogoutMutation = useMutation({
-    mutationFn: async () => await userService.logout(),
-    onMutate: () => {
-      const previousLoggedInUser = queryClient.getQueryData<UserSession>([
-        "me",
-      ]);
-      return previousLoggedInUser;
-    },
-    onError: (_error, _variables, previousLoggedInUser) => {
-      queryClient.setQueryData(["me"], previousLoggedInUser);
-      console.error("error logging out, rolling back log in");
-    },
-    onSettled: () => {
-      queryClient.setQueryData(["me"], null);
-    },
-  });
-
-  const handleUserLogout = () => {
-    userLogoutMutation.mutate();
-  };
+  const { handleUserLogout } = useLogout();
+  const { user, userIsLoading } = useGetMe();
 
   const handleShowLoginState = () => {
     if (isLoading) {
