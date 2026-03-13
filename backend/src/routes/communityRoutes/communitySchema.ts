@@ -2,13 +2,11 @@ import z from "zod";
 
 export type CreateCommunityInput = z.infer<typeof CreateCommunity>;
 
-export const CreateCommunity = z
-  .object({
-    name: z.string(),
-    description: z.string(),
-    public: z.boolean(),
-  })
-  .strict();
+export const CreateCommunity = z.object({
+  name: z.string(),
+  description: z.string(),
+  public: z.boolean(),
+});
 
 export type EditCommunityInput = z.infer<typeof EditCommunity>;
 

@@ -43,6 +43,8 @@ model Communities {
   name                String
   description         String
   public              Boolean @default(true)
+  bannerImageUrl      String @default("")
+  profileImageUrl     String @default("")
   followers           Int @default(0)
   followedCommunities FollowedCommunities[]
   posts               Posts[]

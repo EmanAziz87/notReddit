@@ -10,26 +10,49 @@ import {
 } from "./communitySchema";
 import communityServices from "../../services/communityServices/communityServices";
 import { saveSession } from "../../lib/saveSession";
+import uploads from "../../middleware/s3storage";
+import { cleanUpOrphanedImages } from "../../lib/s3cleanup";
 
 const communityRouter = express.Router();
+const createCommunityFileFields = uploads.fields([
+  { name: "communityProfileImage", maxCount: 1 },
+  { name: "communityBannerImage", maxCount: 1 },
+]);
 
-communityRouter.post("/create", isAuthenticated, async (req, res, next) => {
-  try {
-    const validatedData: CreateCommunityInput = CreateCommunity.parse(req.body);
-    const createdCommunity = await communityServices.createCommunityService(
-      validatedData,
-      req.session.userId,
-    );
+communityRouter.post(
+  "/create",
+  isAuthenticated,
+  createCommunityFileFields,
+  async (req, res, next) => {
+    const files = req.files as {
+      [fieldName: string]: Express.MulterS3.File[];
+    };
+    const profileImageUrl = files["communityProfileImage"]?.[0]?.location;
+    const bannerImageUrl = files["communityBannerImage"]?.[0]?.location;
+    try {
+      console.log("profileImageURl: ", profileImageUrl);
+      console.log("bannerImageURl: ", bannerImageUrl);
+      const validatedData: CreateCommunityInput = CreateCommunity.parse(
+        req.body,
+      );
+      const createdCommunity = await communityServices.createCommunityService(
+        validatedData,
+        req.session.userId,
+        bannerImageUrl,
+        profileImageUrl,
+      );
 
-    res.status(201).json({
-      status: "SUCCESS",
-      message: `Successfully created ${createdCommunity.name}`,
-      createdCommunity,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+      res.status(201).json({
+        status: "SUCCESS",
+        message: `Successfully created ${createdCommunity.name}`,
+        createdCommunity,
+      });
+    } catch (err) {
+      await cleanUpOrphanedImages([profileImageUrl!, bannerImageUrl!]);
+      next(err);
+    }
+  },
+);
 
 communityRouter.put("/edit/:id", isAuthenticated, async (req, res, next) => {
   try {

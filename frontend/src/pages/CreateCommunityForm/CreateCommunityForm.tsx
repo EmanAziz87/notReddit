@@ -1,9 +1,31 @@
 import { useState } from "react";
 import styles from "./CreateCommunityForm.module.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import communityService from "../../api/communityService";
+import { useNavigate } from "react-router";
+import type { Communities } from "backend/generated/prisma/client";
 
 const CreateCommunityForm = () => {
   const [bannerPreview, setBannerPreview] = useState<string[]>([]);
   const [profilePicPreview, setProfilePicPreview] = useState<string[]>([]);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const createCommunityMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response: Communities =
+        await communityService.createCommunity(formData);
+      return response;
+    },
+
+    onError: () => {
+      console.error("error creating community");
+    },
+    onSettled: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["community"] });
+      navigate(`/community/${data?.id}`);
+    },
+  });
 
   const handleProfilePicFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -33,6 +55,7 @@ const CreateCommunityForm = () => {
     formData.append("name", e.target["name-input"].value);
     formData.append("description", e.target["description-input"].value);
     formData.append("public", e.target["public-private-checkbox-input"].value);
+    createCommunityMutation.mutate(formData);
   };
 
   return (
@@ -70,7 +93,7 @@ const CreateCommunityForm = () => {
         </div>
         {profilePicPreview.map((imgURl) => {
           return (
-            <div>
+            <div key={imgURl}>
               <img
                 src={imgURl}
                 alt=""
@@ -92,7 +115,7 @@ const CreateCommunityForm = () => {
         {bannerPreview.map((imgUrl) => {
           console.log("banner url", imgUrl);
           return (
-            <div>
+            <div key={imgUrl}>
               <img
                 src={imgUrl}
                 alt=""

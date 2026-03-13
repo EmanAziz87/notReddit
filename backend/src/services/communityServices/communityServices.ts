@@ -1,5 +1,9 @@
 import type { Communities } from "../../../generated/prisma/client";
-import { ConflictError, ForbiddenContentError } from "../../lib/appErrors";
+import {
+  ConflictError,
+  ForbiddenContentError,
+  InvalidRequestError,
+} from "../../lib/appErrors";
 import prisma from "../../lib/prisma";
 import { communityFoundOrThrow } from "../../lib/prismaHelpers";
 import type {
@@ -11,7 +15,12 @@ import type { FollowedCommunitiesWithCommunity } from "./typesCommunityServices"
 const createCommunityService = async (
   communityInputData: CreateCommunityInput,
   userId: number,
+  bannerImageUrl: string | undefined,
+  profileImageUrl: string | undefined,
 ): Promise<Communities> => {
+  if (!bannerImageUrl || !profileImageUrl) {
+    throw new InvalidRequestError("banner or profile images were not uploaded");
+  }
   const userIdNumber = Number(userId);
 
   const foundCommunity = await prisma.communities.findFirst({
@@ -29,6 +38,8 @@ const createCommunityService = async (
       name: communityInputData.name,
       description: communityInputData.description,
       public: communityInputData.public,
+      bannerImageUrl,
+      profileImageUrl,
       creator: {
         connect: { id: userIdNumber },
       },

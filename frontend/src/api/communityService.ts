@@ -5,4 +5,11 @@ const fetchCommunity = async (communityId: string) => {
   return response.data.fetchedCommunity;
 };
 
-export default { fetchCommunity };
+const createCommunity = async (formData: FormData) => {
+  const response = await api.post(`/communities/create`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data.createdCommunity;
+};
+
+export default { fetchCommunity, createCommunity };
