@@ -54,26 +54,31 @@ communityRouter.post(
   },
 );
 
-communityRouter.put("/edit/:id", isAuthenticated, async (req, res, next) => {
-  try {
-    const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
-    const validatedData: EditCommunityInput = EditCommunity.parse(req.body);
+communityRouter.put(
+  "/edit/:communityId",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
+      const validatedData: EditCommunityInput = EditCommunity.parse(req.body);
 
-    const editedCommunity = await communityServices.editCommunityService(
-      validatedData,
-      validatedParams.id,
-      req.session.userId,
-    );
+      const editedCommunity = await communityServices.editCommunityService(
+        validatedData.description,
+        validatedData.public,
+        validatedParams.communityId,
+        req.session.userId,
+      );
 
-    res.status(201).json({
-      status: "SUCCESS",
-      message: `Successfully edited ${editedCommunity.name}`,
-      editedCommunity,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+      res.status(201).json({
+        status: "SUCCESS",
+        message: `Successfully edited ${editedCommunity.name}`,
+        editedCommunity,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 communityRouter.get("/", async (_req, res, next) => {
   try {
@@ -91,12 +96,12 @@ communityRouter.get("/", async (_req, res, next) => {
   }
 });
 
-communityRouter.get("/:id", async (req, res, next) => {
+communityRouter.get("/:communityId", async (req, res, next) => {
   try {
     const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
 
     const fetchedCommunity = await communityServices.getCommunityService(
-      validatedParams.id,
+      validatedParams.communityId,
     );
 
     res.status(200).json({
@@ -113,7 +118,7 @@ communityRouter.put("/follow/:id", isAuthenticated, async (req, res, next) => {
   try {
     const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
     const followedCommunity = await communityServices.followCommunityService(
-      validatedParams.id,
+      validatedParams.communityId,
       req.session.userId,
     );
 
@@ -138,7 +143,7 @@ communityRouter.put(
       const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
       const unfollowedCommunity =
         await communityServices.unfollowCommunityService(
-          validatedParams.id,
+          validatedParams.communityId,
           req.session.userId,
         );
       req.session.user!.followingCount -= 1;

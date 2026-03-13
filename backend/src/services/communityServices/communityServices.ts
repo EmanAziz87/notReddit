@@ -48,7 +48,8 @@ const createCommunityService = async (
 };
 
 const editCommunityService = async (
-  editedCommunityInputData: EditCommunityInput,
+  description: string,
+  isPublic: boolean,
   communityId: number,
   userId: number,
 ): Promise<Communities> => {
@@ -66,8 +67,8 @@ const editCommunityService = async (
       id: foundCommunity.id,
     },
     data: {
-      description: editedCommunityInputData.description,
-      public: editedCommunityInputData.public,
+      description: description,
+      public: isPublic,
     },
   });
 };

@@ -16,6 +16,6 @@ export type CommunityIdParams = z.infer<typeof CommunityId>;
 
 export const CommunityId = z
   .object({
-    id: z.coerce.number(),
+    communityId: z.coerce.number(),
   })
   .strict();
