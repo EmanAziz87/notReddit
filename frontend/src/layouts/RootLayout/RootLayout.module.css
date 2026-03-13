@@ -3,12 +3,7 @@
 }
 
 .main-sidebar-container {
-  display: flex;
   height: 95vh;
   width: 100vw;
   background-color: var(--grey-blue);
-}
-
-main {
-  width: 75vw;
 }

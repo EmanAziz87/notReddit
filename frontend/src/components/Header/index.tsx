@@ -1,9 +1,7 @@
 import { NavLink, useNavigate } from "react-router";
 import styles from "./Header.module.css";
-import userService from "../../api/userService";
-import { useQuery } from "@tanstack/react-query";
-import type { UserSession } from "backend";
 import { useLogout } from "../../hooks/useLogout";
+import { useGetMe } from "../../hooks/useGetMe";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,7 +10,7 @@ const Header = () => {
   const { user, userIsLoading } = useGetMe();
 
   const handleShowLoginState = () => {
-    if (isLoading) {
+    if (userIsLoading) {
       return <div>logging in</div>;
     } else {
       return user ? (
@@ -40,6 +38,9 @@ const Header = () => {
         <input type="text" className={styles["header-search-bar"]} />
       </div>
       <div>{handleShowLoginState()}</div>
+      {user && (
+        <NavLink to={"community/createCommunity"}>Create Community</NavLink>
+      )}
     </div>
   );
 };
