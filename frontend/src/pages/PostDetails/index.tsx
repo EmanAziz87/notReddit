@@ -17,6 +17,8 @@ import { useEffect, useState } from "react";
 const PostDetails = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const [revealEdit, setRevealEdit] = useState<boolean>(false);
   const { communityId, postId } = useParams<{
     communityId: string;
     postId: string;
@@ -27,7 +29,6 @@ const PostDetails = () => {
     isLoading: postLoading,
     error: postError,
   } = useGetPost(communityId, postId);
-  const [revealEdit, setRevealEdit] = useState<boolean>(false);
   const [content, setContent] = useState<string>(
     postData?.fetchedPost.content ?? "",
   );

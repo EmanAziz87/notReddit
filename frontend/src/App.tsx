@@ -20,6 +20,8 @@ const queryClient = new QueryClient({
     onError: (error: any) => {
       if (error?.status === 401) {
       }
+
+      console.error("General Error Log (query Global): ", error);
     },
   }),
   mutationCache: new MutationCache({
@@ -28,6 +30,7 @@ const queryClient = new QueryClient({
         queryClient.setQueryData(["me"], null);
         window.location.href = "/login";
       }
+      console.error("General Error Log (mutation Global): ", error);
     },
   }),
   defaultOptions: {

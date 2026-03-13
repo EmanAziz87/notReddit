@@ -115,7 +115,7 @@ const editCommentService = async (
   commentInput: CreateCommentInput,
   userId: number,
 ): Promise<CommentWithRelations> => {
-  postFoundOrThrow(postId);
+  await postFoundOrThrow(postId);
 
   return prisma.comments.update({
     where: {

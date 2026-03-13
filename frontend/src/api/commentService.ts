@@ -28,8 +28,16 @@ const setCommentReactionService = async (
   );
 };
 
-const deleteCommentService = async (postId: string, commentId: number) => {
+const deleteCommentService = async (postId: string, commentId: string) => {
   await api.delete(`/comments/post/${postId}/${commentId}/delete`);
+};
+
+const editCommentService = async (
+  postId: string,
+  commentId: string,
+  content: string,
+) => {
+  await api.put(`/comments/post/${postId}/${commentId}/edit`, { content });
 };
 
 export default {
@@ -38,4 +46,5 @@ export default {
   replyCommentService,
   setCommentReactionService,
   deleteCommentService,
+  editCommentService,
 };

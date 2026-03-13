@@ -13,7 +13,7 @@ export interface CommentReactionMutation {
 }
 
 export interface CommentDeleteMutation {
-  commentId: number;
+  commentId: string;
   postId: string;
 }
 
@@ -51,4 +51,10 @@ export interface loginData {
 export interface PostCreateMutation {
   communityId: string;
   formData: FormData;
+}
+
+export interface EditCommentMutation {
+  commentId: string;
+  postId: string;
+  content: string;
 }

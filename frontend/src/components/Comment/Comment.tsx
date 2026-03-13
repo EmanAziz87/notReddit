@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { CommentDeleteMutation, CommentsWithReplies } from "../../types";
+import type { CommentsWithReplies } from "../../types";
 import CommentForm from "../CommentForm/CommentForm";
 import style from "./Comment.module.css";
 import { useSetCommentReaction } from "../../hooks/useSetCommentReaction";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { UserSession } from "backend";
-import commentService from "../../api/commentService";
+import { useDeleteComment } from "../../hooks/useDeleteComment";
+import { useEditComment } from "../../hooks/useEditComment";
 
 const Comment = ({
   comment,
@@ -25,6 +26,8 @@ const Comment = ({
 }) => {
   const queryClient = useQueryClient();
 
+  const [commentContent, setCommentContent] = useState<string>(comment.content);
+
   const [activeReplyInputId, setActiveReplyInputId] = useState<number | null>(
     null,
   );
@@ -34,28 +37,12 @@ const Comment = ({
     postId,
   );
 
-  const deleteCommentMutation = useMutation({
-    mutationFn: async (commentDeleteObj: CommentDeleteMutation) => {
-      await commentService.deleteCommentService(
-        commentDeleteObj.postId,
-        commentDeleteObj.commentId,
-      );
-    },
-    onMutate: () => {
-      const cachedComments = queryClient.getQueryData<CommentsWithReplies>([
-        "comments",
-        postId,
-      ]);
-      return cachedComments;
-    },
-    onError: (_error, _variables, cachedComments) => {
-      queryClient.setQueryData(["comments", postId], cachedComments);
-      console.log("error deleting comments, rolling back changes");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-    },
-  });
+  const { handleDeleteComment } = useDeleteComment(postId, String(comment.id));
+
+  const { handleEditComment, revealEdit, setRevealEdit } = useEditComment(
+    postId,
+    String(comment.id),
+  );
 
   const handleShowDeleteButton = () => {
     const user = queryClient.getQueryData<UserSession>(["me"]);
@@ -64,19 +51,35 @@ const Comment = ({
     ) : null;
   };
 
-  const handleDeleteComment = () => {
-    deleteCommentMutation.mutate({ postId, commentId: comment.id });
+  const handleShowEditButton = () => {
+    const user = queryClient.getQueryData<UserSession>(["me"]);
+    return comment.authorId === user?.id ? (
+      <button onClick={() => setRevealEdit(!revealEdit)}>
+        {revealEdit ? `Cancel` : `Edit`}
+      </button>
+    ) : null;
   };
 
   return (
     <div>
-      <div>
-        {comment.content} : {comment.author.username}
-      </div>
+      <div>{comment.author.username}</div>
+      <div>{!revealEdit ? comment.content : null}</div>
+      {revealEdit ? (
+        <form onSubmit={handleEditComment}>
+          <input
+            type="textarea"
+            name="edit-comment-content-input"
+            value={commentContent}
+            onChange={(e) => setCommentContent(e.target.value)}
+          />
+          <button type="submit">Confirm</button>
+        </form>
+      ) : null}
       {loggedIn && (
         <button onClick={() => setActiveReplyInputId(comment.id)}>Reply</button>
       )}
       {handleShowDeleteButton()}
+      {handleShowEditButton()}
       <div className={style["comment-like-dislike-container"]}>
         <div>
           <span
