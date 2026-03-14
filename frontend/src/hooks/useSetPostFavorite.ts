@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import postService from "../api/postService";
 import type { CachedPost } from "../types";
 import { useRef } from "react";
+import type { PostsWithRelationsNoComments } from "backend";
 
 export const useSetPostFavorite = (
   communityId: string | undefined,
@@ -27,37 +28,72 @@ export const useSetPostFavorite = (
 
   const applyOptimisticUpdate = (favorite: boolean) => {
     const cache = queryClient.getQueryData<CachedPost>(["post", postId]);
+    const communityPostCache = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["communityPosts", communityId]);
 
-    if (!cache) return;
+    if (!cache && !communityPostCache) return;
 
-    queryClient.setQueryData(["post", postId], {
-      fetchedPost: {
-        ...cache.fetchedPost,
-        favorited: favorite,
-      },
-    });
+    if (cache) {
+      queryClient.setQueryData(["post", postId], {
+        fetchedPost: {
+          ...cache.fetchedPost,
+          favorited: favorite,
+        },
+      });
+    }
+    if (communityPostCache) {
+      queryClient.setQueryData(
+        ["communityPosts", communityId],
+        communityPostCache!.map((post) => {
+          if (postId === String(post.id)) {
+            return { ...post, favorited: favorite };
+          } else {
+            return post;
+          }
+        }),
+      );
+    }
   };
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleFavorite = () => {
-    const cachedPost = queryClient.getQueryData<CachedPost>(["post", postId]);
-    const nextFavoritedState: boolean = !cachedPost?.fetchedPost.favorited;
+    let cachedPost = queryClient.getQueryData<CachedPost>(["post", postId]);
+    let communityCachedPosts = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["communityPosts", communityId]);
+
+    const nextFavoritedState: boolean = cachedPost
+      ? !cachedPost?.fetchedPost.favorited
+      : !(
+          communityCachedPosts?.find((post) => String(post.id) === postId)
+            ?.favorited ?? false
+        );
 
     applyOptimisticUpdate(nextFavoritedState);
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
+      let favoritedFinal: boolean | undefined;
       const finalCached = queryClient.getQueryData<CachedPost>([
         "post",
         postId,
       ]);
-      console.log(
-        "firing API call with favorite:",
-        finalCached?.fetchedPost.favorited,
-      );
 
-      setFavoriteMutation.mutate(finalCached?.fetchedPost.favorited ?? false);
+      if (!finalCached) {
+        const communityPostsCache = queryClient.getQueryData<
+          PostsWithRelationsNoComments[]
+        >(["communityPosts", communityId]);
+
+        favoritedFinal = communityPostsCache?.find(
+          (post) => String(post.id) === postId,
+        )?.favorited;
+      }
+
+      setFavoriteMutation.mutate(
+        finalCached?.fetchedPost.favorited ?? favoritedFinal ?? false,
+      );
     }, 300);
   };
 

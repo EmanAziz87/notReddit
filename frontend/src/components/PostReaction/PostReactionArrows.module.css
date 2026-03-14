@@ -1,0 +1,18 @@
+.like-icon {
+  -webkit-mask-image: url("../../assets/icons/arrow-up.svg");
+  mask-image: url("../../assets/icons/arrow-up.svg");
+}
+
+.dislike-icon {
+  -webkit-mask-image: url("../../assets/icons/arrow-down.svg");
+  mask-image: url("../../assets/icons/arrow-down.svg");
+}
+
+.like-dislike-container {
+  display: flex;
+}
+
+.favorite-icon {
+  -webkit-mask-image: url("../../assets/icons/heart.svg");
+  mask-image: url("../../assets/icons/heart.svg");
+}

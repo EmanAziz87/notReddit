@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import postService from "../../api/postService";
 import type { PostsWithExtraData } from "backend";
 import { useEffect, useState } from "react";
+import PostReactionArrows from "../../components/PostReaction/PostReactionArrows";
 
 const PostDetails = () => {
   const queryClient = useQueryClient();
@@ -29,6 +30,7 @@ const PostDetails = () => {
     isLoading: postLoading,
     error: postError,
   } = useGetPost(communityId, postId);
+
   const [content, setContent] = useState<string>(
     postData?.fetchedPost.content ?? "",
   );
@@ -47,8 +49,6 @@ const PostDetails = () => {
     error: commentsError,
   } = useGetPostComments(postId!);
 
-  const { handleLike, handleDislike } = useSetPostReaction(communityId, postId);
-  const { handleFavorite } = useSetPostFavorite(communityId, postId);
   const { handleCommentSubmit } = useSetPostComment(postId!);
 
   const editPostMutation = useMutation({
@@ -140,7 +140,7 @@ const PostDetails = () => {
           <div>{postData.fetchedPost.content}</div>
         )}
 
-        <div className={style["like-dislike-container"]}>
+        {/* <div className={style["like-dislike-container"]}>
           <div>
             <span
               onClick={() => (loggedIn ? handleLike() : undefined)}
@@ -166,7 +166,13 @@ const PostDetails = () => {
               }}
             />
           </div>
-        </div>
+        </div> */}
+        <PostReactionArrows
+          communityId={communityId!}
+          postId={postId!}
+          postFavorited={postData.fetchedPost.favorited}
+          postLikes={postData.fetchedPost.likes}
+        />
         {postData.fetchedPost.authorId === currentUser?.id && (
           <div>
             <button onClick={handleDeletePost}>Delete</button>

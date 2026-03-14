@@ -9,14 +9,13 @@ const Community = () => {
   const { communityId } = useParams();
   const navigate = useNavigate();
 
-  if (!communityId) return null;
-
   const { user, userIsLoading } = useGetMe();
-  const { communityData, communityLoading, communityError } =
-    useGetCommunity(communityId);
+  const { communityData, communityLoading, communityError } = useGetCommunity(
+    communityId!,
+  );
 
   const { communityPostsData, communityPostsLoading, communityPostsError } =
-    useGetCommunityPosts(communityId);
+    useGetCommunityPosts(communityId!);
 
   const handleNavigateEdit = () =>
     navigate(`/community/${communityId}/editCommunity`);
@@ -26,7 +25,7 @@ const Community = () => {
   if (communityError && communityPostsError)
     return <div>Post Error: {communityError.message}</div>;
   if (!communityData || !communityPostsData) return null;
-
+  if (!communityId) return null;
   return (
     <div>
       <div>
@@ -53,9 +52,9 @@ const Community = () => {
       <br />
       <div>
         {communityPostsData.map((post) => (
-          <NavLink key={post.id} to={`/post/${communityId}/${post.id}`}>
+          <div key={post.id}>
             <PostCard post={post} />
-          </NavLink>
+          </div>
         ))}
       </div>
     </div>
