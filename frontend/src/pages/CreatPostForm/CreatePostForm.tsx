@@ -27,10 +27,6 @@ const CreatePostForm = () => {
       console.error("there was an error creating a post");
     },
     onSettled: () => {
-      // invalidate the communityPosts query and navigate to community home feed.
-      // you first have to make the query to grab all communities from the home feed
-      // when fetched community posts, create post card component (large - compact later)
-      // and use that for rendering post for both community page and home feed.
       queryClient.invalidateQueries({
         queryKey: ["communityPosts", communityId],
       });

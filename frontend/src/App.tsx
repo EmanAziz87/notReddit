@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Community from "./pages/Community/Community";
 import CreatePostForm from "./pages/CreatPostForm/CreatePostForm";
 import CreateCommunityForm from "./pages/CreateCommunityForm/CreateCommunityForm";
+import EditCommunityForm from "./pages/EditPostForm/EditCommunityForm";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -67,6 +68,10 @@ function AppContent() {
           <Route
             path="community/:communityId/createPost"
             element={<CreatePostForm />}
+          />
+          <Route
+            path="community/:communityId/editCommunity"
+            element={<EditCommunityForm />}
           />
           <Route
             path="community/createCommunity"
