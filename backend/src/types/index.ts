@@ -27,7 +27,7 @@ export type PostsWithRelationsNoComments = Prisma.PostsGetPayload<{
     community: true;
     author: { select: { id: true; username: true; admin: true } };
   };
-}>;
+}> & { favorited: boolean };
 
 export type PostsWithExtraData = PostsWithRelations & {
   userReaction: "liked" | "disliked" | null;

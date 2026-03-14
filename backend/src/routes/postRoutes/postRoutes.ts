@@ -112,6 +112,7 @@ postRouter.get("/community/:communityId", async (req, res, next) => {
     const validatedParams: PostParams = PostParamsData.parse(req.params);
     const communityPosts = await postServices.getAllCommunityPostsService(
       validatedParams.communityId,
+      req.session.userId,
     );
 
     res.status(200).json({

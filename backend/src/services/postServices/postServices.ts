@@ -114,6 +114,7 @@ const getPostService = async (
 
 const getAllCommunityPostsService = async (
   communityId: number,
+  userId: number | undefined,
 ): Promise<PostsWithRelationsNoComments[]> => {
   await communityFoundOrThrow(communityId);
 
@@ -124,6 +125,14 @@ const getAllCommunityPostsService = async (
       },
       include: {
         community: true,
+        favoritedPosts: userId
+          ? {
+              where: {
+                userId,
+              },
+              take: 1,
+            }
+          : false,
         author: {
           select: {
             id: true,
@@ -134,7 +143,20 @@ const getAllCommunityPostsService = async (
       },
     })) || [];
 
-  return communityPosts;
+  const communityPostsWithFavorited: PostsWithRelationsNoComments[] = [];
+
+  if (userId) {
+    communityPosts.forEach((post) => {
+      console.log("**********", post);
+      if (post.favoritedPosts?.length > 0) {
+        communityPostsWithFavorited.push({ ...post, favorited: true });
+      } else {
+        communityPostsWithFavorited.push({ ...post, favorited: false });
+      }
+    });
+  }
+
+  return communityPostsWithFavorited;
 };
 
 const getAllPostsFollowedService = async (
