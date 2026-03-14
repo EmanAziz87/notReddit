@@ -1,3 +1,4 @@
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import type { Communities } from "../../../generated/prisma/client";
 import {
   ConflictError,
@@ -10,6 +11,7 @@ import type {
   CreateCommunityInput,
   EditCommunityInput,
 } from "../../routes/communityRoutes/communitySchema";
+import s3Client from "../../util/s3client";
 import type { FollowedCommunitiesWithCommunity } from "./typesCommunityServices";
 
 const createCommunityService = async (
@@ -52,6 +54,8 @@ const editCommunityService = async (
   isPublic: boolean,
   communityId: number,
   userId: number,
+  oldBannerImageUrl: string | undefined,
+  oldProfileImageUrl: string | undefined,
   bannerImageUrl: string | undefined,
   profileImageUrl: string | undefined,
 ): Promise<Communities> => {
@@ -64,15 +68,38 @@ const editCommunityService = async (
     );
   }
 
-  return await prisma.communities.update({
+  const communityUpdated = await prisma.communities.update({
     where: {
       id: foundCommunity.id,
     },
     data: {
       description: description,
       public: isPublic,
+      ...(bannerImageUrl && { bannerImageUrl }),
+      ...(profileImageUrl && { profileImageUrl }),
     },
   });
+
+  if (communityUpdated) {
+    if (oldBannerImageUrl && bannerImageUrl) {
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env["AWS_BUCKET_NAME"],
+          Key: oldBannerImageUrl.split("/").pop(),
+        }),
+      );
+    }
+
+    if (oldProfileImageUrl && profileImageUrl) {
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env["AWS_BUCKET_NAME"],
+          Key: oldProfileImageUrl.split("/").pop(),
+        }),
+      );
+    }
+  }
+  return communityUpdated;
 };
 
 const getCommunityService = async (

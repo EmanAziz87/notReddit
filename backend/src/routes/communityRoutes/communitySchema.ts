@@ -10,7 +10,12 @@ export const CreateCommunity = z.object({
 
 export type EditCommunityInput = z.infer<typeof EditCommunity>;
 
-export const EditCommunity = CreateCommunity.omit({ name: true });
+export const EditCommunity = z.object({
+  description: z.string(),
+  public: z.string().transform((val) => val === "true"),
+  oldBannerImageUrl: z.string(),
+  oldProfileImageUrl: z.string(),
+});
 
 export type CommunityIdParams = z.infer<typeof CommunityId>;
 

@@ -73,6 +73,8 @@ communityRouter.put(
         validatedData.public,
         validatedParams.communityId,
         req.session.userId,
+        validatedData.oldBannerImageUrl,
+        validatedData.oldProfileImageUrl,
         bannerImageUrl,
         profileImageUrl,
       );
@@ -83,7 +85,10 @@ communityRouter.put(
         editedCommunity,
       });
     } catch (err) {
-      await cleanUpOrphanedImages([profileImageUrl!, bannerImageUrl!]);
+      const imagesToCleanUp = [profileImageUrl, bannerImageUrl].filter(
+        (url): url is string => url !== undefined,
+      );
+      await cleanUpOrphanedImages(imagesToCleanUp);
       next(err);
     }
   },

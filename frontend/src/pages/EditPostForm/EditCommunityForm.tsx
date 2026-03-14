@@ -70,6 +70,11 @@ const EditCommunityForm = () => {
 
     const bannerFileUpload = e.target["communityBannerImage"].files![0];
     const profileFileUpload = e.target["communityProfileImage"].files![0];
+    console.log(
+      "current banner file input value: ",
+      e.target["communityBannerImage"].files![0],
+    );
+    console.log("old banner url", typeof communityData?.bannerImageUrl);
 
     if (bannerFileUpload) {
       formData.append(
@@ -84,7 +89,13 @@ const EditCommunityForm = () => {
         e.target["communityProfileImage"].files![0],
       );
     }
+    if (communityData?.bannerImageUrl) {
+      formData.append("oldBannerImageUrl", communityData!.bannerImageUrl);
+    }
 
+    if (communityData?.profileImageUrl) {
+      formData.append("oldProfileImageUrl", communityData!.profileImageUrl);
+    }
     formData.append(
       "description",
       e.target["edit-community-description-input"].value,

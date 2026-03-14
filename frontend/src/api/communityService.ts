@@ -18,4 +18,4 @@ const editCommunity = async (communityId: string, formData: FormData) => {
   });
 };
 
-export default { fetchCommunity, createCommunity };
+export default { fetchCommunity, createCommunity, editCommunity };
