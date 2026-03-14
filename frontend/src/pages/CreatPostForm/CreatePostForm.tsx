@@ -55,7 +55,7 @@ const CreatePostForm = () => {
   return (
     <div>
       <h3>Create your post</h3>
-      <form onSubmit={(e) => handleSubmit(e)} encType="multipart/form-data">
+      <form onSubmit={(e) => handleSubmit(e)}>
         <div>
           <label htmlFor="post-title-input">Title: </label>
           <input type="text" id="post-title-input" />
