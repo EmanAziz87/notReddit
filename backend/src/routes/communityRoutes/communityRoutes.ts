@@ -57,7 +57,13 @@ communityRouter.post(
 communityRouter.put(
   "/edit/:communityId",
   isAuthenticated,
+  createCommunityFileFields,
   async (req, res, next) => {
+    const files = req.files as {
+      [fieldName: string]: Express.MulterS3.File[];
+    };
+    const profileImageUrl = files["communityProfileImage"]?.[0]?.location;
+    const bannerImageUrl = files["communityBannerImage"]?.[0]?.location;
     try {
       const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
       const validatedData: EditCommunityInput = EditCommunity.parse(req.body);
@@ -67,6 +73,8 @@ communityRouter.put(
         validatedData.public,
         validatedParams.communityId,
         req.session.userId,
+        bannerImageUrl,
+        profileImageUrl,
       );
 
       res.status(201).json({
@@ -75,6 +83,7 @@ communityRouter.put(
         editedCommunity,
       });
     } catch (err) {
+      await cleanUpOrphanedImages([profileImageUrl!, bannerImageUrl!]);
       next(err);
     }
   },

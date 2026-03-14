@@ -52,6 +52,8 @@ const editCommunityService = async (
   isPublic: boolean,
   communityId: number,
   userId: number,
+  bannerImageUrl: string | undefined,
+  profileImageUrl: string | undefined,
 ): Promise<Communities> => {
   const userIdNumber = Number(userId);
   const foundCommunity = await communityFoundOrThrow(communityId);

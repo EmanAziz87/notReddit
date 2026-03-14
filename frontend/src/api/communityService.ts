@@ -12,4 +12,10 @@ const createCommunity = async (formData: FormData) => {
   return response.data.createdCommunity;
 };
 
+const editCommunity = async (communityId: string, formData: FormData) => {
+  await api.put(`/communities/edit/${communityId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
 export default { fetchCommunity, createCommunity };

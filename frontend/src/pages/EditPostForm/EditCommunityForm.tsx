@@ -9,9 +9,6 @@ const EditCommunityForm = () => {
 
   const { communityData, communityError } = useGetCommunity(communityId!);
 
-  const [communityName, setCommunityName] = useState<string>(
-    communityData?.name ?? "",
-  );
   const [communityDescription, setCommunityDescription] = useState<string>(
     communityData?.description ?? "",
   );
@@ -28,12 +25,7 @@ const EditCommunityForm = () => {
   ]);
 
   useEffect(() => {
-    if (
-      communityData?.name &&
-      communityData?.description &&
-      communityData?.public
-    ) {
-      setCommunityName(communityData.name);
+    if (communityData?.description && communityData?.public) {
       setCommunityDescription(communityData.description);
       setCommunityIsPublic(communityData.public);
       setProfileImagePreview([communityData.profileImageUrl]);
@@ -92,7 +84,6 @@ const EditCommunityForm = () => {
       );
     }
 
-    formData.append("name", e.target["edit-community-name-input"].value);
     formData.append(
       "description",
       e.target["edit-community-description-input"].value,
@@ -111,16 +102,6 @@ const EditCommunityForm = () => {
   return (
     <div>
       <form onSubmit={handleEditCommunity}>
-        <div>
-          <label htmlFor="edit-community-name-input">Name: </label>
-          <input
-            type="text"
-            id="edit-community-name-input"
-            name="edit-community-name-input"
-            value={communityName}
-            onChange={(e) => setCommunityName(e.currentTarget.value)}
-          />
-        </div>
         <div>
           <label htmlFor="edit-community-description-input">Description:</label>
           <textarea
