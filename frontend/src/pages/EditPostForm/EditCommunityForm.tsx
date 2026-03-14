@@ -1,11 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useGetCommunity } from "../../hooks/useGetCommunity";
 import styles from "./EditCommunityForm.module.css";
+import communityService from "../../api/communityService";
 
 const EditCommunityForm = () => {
   const { communityId } = useParams();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { communityData, communityError } = useGetCommunity(communityId!);
 
@@ -34,14 +37,12 @@ const EditCommunityForm = () => {
   }, [communityData]);
 
   const editCommunityMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      if (formData.get("communityProfileImage")) {
-        return;
-      }
-
-      if (formData.get("communityBannerImage")) {
-        return;
-      }
+    mutationFn: async (formData: FormData) =>
+      await communityService.editCommunity(communityId!, formData),
+    onError: () => console.error("error editing community"),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["community", communityId] });
+      navigate(`/community/${communityId}`);
     },
   });
 
@@ -92,6 +93,8 @@ const EditCommunityForm = () => {
       "public",
       e.target["edit-community-ispublic-input"].checked,
     );
+
+    editCommunityMutation.mutate(formData);
   };
 
   if (!communityData) return null;
