@@ -11,8 +11,10 @@ export const useSetPostReaction = (
 
   const applyOptimisticUpdate = (reaction: "LIKE" | "DISLIKE" | "NONE") => {
     const cached = queryClient.getQueryData<CachedPost>(["post", postId]);
+    // cached will be undefined here as well if not sent from post detail component
     if (!cached) return;
 
+    // set likes and prev reaction based on post details cache or communityposts cache
     let likes = cached.fetchedPost.likes;
     const prevReaction = cached.fetchedPost.userReaction;
 
@@ -27,6 +29,7 @@ export const useSetPostReaction = (
       if (prevReaction === "disliked") likes += 1;
     }
 
+    //set cache based on whats not null
     queryClient.setQueryData(["post", postId], {
       fetchedPost: {
         ...cached.fetchedPost,
@@ -67,8 +70,8 @@ export const useSetPostReaction = (
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleReaction = (reaction: "LIKE" | "DISLIKE") => {
-    console.log("communityId:", communityId);
-    console.log("postId: ", postId);
+    // if cached is null from postdetails, set the nextReaction to be favorited from post
+    // in communityPosts cache.
     console.log("applying reaction");
     const cached = queryClient.getQueryData<CachedPost>(["post", postId]);
     const current = cached?.fetchedPost.userReaction;
@@ -86,6 +89,8 @@ export const useSetPostReaction = (
         "post",
         postId,
       ]);
+      // finalCached may be undefined here if reaction is not coming from postdetails page.
+      // so the api is sending a reaction that will be undefined to our backend.
       const finalReaction = finalCached?.fetchedPost.userReaction;
       setReactionMutation.mutate({
         communityId: communityId!,
@@ -99,6 +104,8 @@ export const useSetPostReaction = (
       });
     }, 300);
   };
+
+  // **** Note: backend for communityposts is not attaching userreaction to returned posts. only favorited ****
 
   const handleLike = () => handleReaction("LIKE");
   const handleDislike = () => handleReaction("DISLIKE");

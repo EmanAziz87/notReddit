@@ -18,6 +18,7 @@ import type {
   PostsWithRelations,
   PostsWithRelationsNoComments,
 } from "../../types";
+import type { ReactionType } from "../../../generated/prisma/enums";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -133,6 +134,7 @@ const getAllCommunityPostsService = async (
               take: 1,
             }
           : false,
+        postReaction: userId ? { where: { userId }, take: 1 } : false,
         author: {
           select: {
             id: true,
@@ -147,12 +149,21 @@ const getAllCommunityPostsService = async (
 
   if (userId) {
     communityPosts.forEach((post) => {
-      console.log("**********", post);
+      let userReaction: "liked" | "disliked" | null = null;
+      let favorited = false;
       if (post.favoritedPosts?.length > 0) {
-        communityPostsWithFavorited.push({ ...post, favorited: true });
-      } else {
-        communityPostsWithFavorited.push({ ...post, favorited: false });
+        favorited = true;
       }
+
+      if (post.postReaction?.[0]?.type === "LIKE") {
+        userReaction = "liked";
+      }
+
+      if (post.postReaction?.[0]?.type === "DISLIKE") {
+        userReaction = "disliked";
+      }
+
+      communityPostsWithFavorited.push({ ...post, favorited, userReaction });
     });
   }
 
