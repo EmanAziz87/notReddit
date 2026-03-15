@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CachedPost, ReactionMutation } from "../types";
 import postService from "../api/postService";
 import { useRef } from "react";
+import type { PostsWithRelationsNoComments } from "backend";
 
 export const useSetPostReaction = (
   communityId: string | undefined,
@@ -11,12 +12,18 @@ export const useSetPostReaction = (
 
   const applyOptimisticUpdate = (reaction: "LIKE" | "DISLIKE" | "NONE") => {
     const cached = queryClient.getQueryData<CachedPost>(["post", postId]);
-    // cached will be undefined here as well if not sent from post detail component
-    if (!cached) return;
+    const communityPostsCache = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["communityPosts", communityId]);
+    const postFromCommunityCache = communityPostsCache?.find(
+      (post) => String(post.id) === postId,
+    );
 
-    // set likes and prev reaction based on post details cache or communityposts cache
-    let likes = cached.fetchedPost.likes;
-    const prevReaction = cached.fetchedPost.userReaction;
+    if (!cached && !postFromCommunityCache) return;
+
+    let likes = cached?.fetchedPost.likes || postFromCommunityCache?.likes || 0;
+    const prevReaction =
+      cached?.fetchedPost.userReaction || postFromCommunityCache?.userReaction;
 
     if (reaction === "LIKE") {
       if (prevReaction === "disliked") likes += 1;
@@ -29,23 +36,56 @@ export const useSetPostReaction = (
       if (prevReaction === "disliked") likes += 1;
     }
 
-    //set cache based on whats not null
-    queryClient.setQueryData(["post", postId], {
-      fetchedPost: {
-        ...cached.fetchedPost,
-        likes,
-        userReaction:
-          reaction === "NONE"
-            ? null
-            : reaction === "LIKE" && prevReaction === "disliked"
+    if (cached) {
+      queryClient.setQueryData(["post", postId], {
+        fetchedPost: {
+          ...cached.fetchedPost,
+          likes,
+          userReaction:
+            reaction === "NONE"
               ? null
-              : reaction === "DISLIKE" && prevReaction === "liked"
+              : reaction === "LIKE" && prevReaction === "disliked"
                 ? null
-                : reaction === "LIKE"
-                  ? "liked"
-                  : "disliked",
-      },
-    });
+                : reaction === "DISLIKE" && prevReaction === "liked"
+                  ? null
+                  : reaction === "LIKE"
+                    ? "liked"
+                    : "disliked",
+        },
+      });
+    }
+
+    if (postFromCommunityCache) {
+      queryClient.setQueryData(
+        ["communityPosts", communityId],
+        communityPostsCache?.map((post) => {
+          if (String(post.id) === postId) {
+            return {
+              ...post,
+              likes,
+              userReaction:
+                reaction === "NONE"
+                  ? null
+                  : reaction === "LIKE" && prevReaction === "disliked"
+                    ? null
+                    : reaction === "DISLIKE" && prevReaction === "liked"
+                      ? null
+                      : reaction === "LIKE"
+                        ? "liked"
+                        : "disliked",
+            };
+          } else {
+            return post;
+          }
+        }),
+      );
+    }
+
+    const check = queryClient.getQueryData<PostsWithRelationsNoComments[]>([
+      "communityPosts",
+      communityId,
+    ])?.[0];
+    console.log("communityPosts cache: ", check?.userReaction);
   };
 
   const setReactionMutation = useMutation({
@@ -70,11 +110,24 @@ export const useSetPostReaction = (
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleReaction = (reaction: "LIKE" | "DISLIKE") => {
-    // if cached is null from postdetails, set the nextReaction to be favorited from post
-    // in communityPosts cache.
-    console.log("applying reaction");
+    console.log("applying reaction: ", reaction);
+
     const cached = queryClient.getQueryData<CachedPost>(["post", postId]);
-    const current = cached?.fetchedPost.userReaction;
+
+    const communityPostsCache = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["communityPosts", communityId]);
+
+    let current;
+
+    if (cached) {
+      current = cached?.fetchedPost.userReaction;
+    } else if (communityPostsCache) {
+      current = communityPostsCache?.find(
+        (post) => String(post.id) === postId,
+      )?.userReaction;
+    }
+
     const nextReaction =
       (reaction === "LIKE" && current === "liked") ||
       (reaction === "DISLIKE" && current === "disliked")
@@ -89,9 +142,16 @@ export const useSetPostReaction = (
         "post",
         postId,
       ]);
-      // finalCached may be undefined here if reaction is not coming from postdetails page.
-      // so the api is sending a reaction that will be undefined to our backend.
-      const finalReaction = finalCached?.fetchedPost.userReaction;
+
+      const finalCachedCommunityPost = queryClient
+        .getQueryData<
+          PostsWithRelationsNoComments[]
+        >(["communityPosts", communityId])
+        ?.find((post) => String(post.id) === postId);
+
+      const finalReaction =
+        finalCached?.fetchedPost.userReaction ||
+        finalCachedCommunityPost?.userReaction;
       setReactionMutation.mutate({
         communityId: communityId!,
         postId: postId!,
@@ -104,8 +164,6 @@ export const useSetPostReaction = (
       });
     }, 300);
   };
-
-  // **** Note: backend for communityposts is not attaching userreaction to returned posts. only favorited ****
 
   const handleLike = () => handleReaction("LIKE");
   const handleDislike = () => handleReaction("DISLIKE");

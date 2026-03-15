@@ -110,7 +110,6 @@ const PostDetails = () => {
   if (!postData || !nestedComments) return null;
 
   const loggedIn = currentUser ? true : false;
-  console.log("loggedIn value:", loggedIn, "currentUser:", currentUser);
 
   return (
     <div>

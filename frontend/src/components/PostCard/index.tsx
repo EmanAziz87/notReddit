@@ -4,7 +4,6 @@ import PostReactionArrows from "../PostReaction/PostReactionArrows";
 import { NavLink } from "react-router";
 
 const PostCard = ({ post }: { post: PostsWithRelationsNoComments }) => {
-  console.log(post.title, " favorited: ", post.favorited);
   return (
     <div className={styles["post-card-container"]}>
       <NavLink key={post.id} to={`/post/${post.communityId}/${post.id}`}>
