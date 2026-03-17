@@ -1,7 +1,7 @@
 import type { Request } from "express";
-import type { Users } from "../../generated/prisma/client";
+import type { UserSession } from "../types";
 
-export const setSession = (req: Request, user: Users): Promise<void> => {
+export const setSession = (req: Request, user: UserSession): Promise<void> => {
   return new Promise((resolve, reject) => {
     req.session.userId = user.id;
     req.session.user = {
@@ -9,8 +9,7 @@ export const setSession = (req: Request, user: Users): Promise<void> => {
       username: user.username,
       admin: user.admin,
       email: user.email,
-      birthdate: user.birthdate,
-      followingCount: user.followingCount,
+      profileImageUrl: user.profileImageUrl,
     };
 
     req.session.save((err) => {

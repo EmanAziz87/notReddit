@@ -6,11 +6,12 @@ import prisma from "../../lib/prisma";
 import { compareHash, hashing } from "../../util/hashing";
 import { ConflictError, UnauthorizedError } from "../../lib/appErrors";
 import type { Users } from "../../../generated/prisma/client";
+import type { UserSession } from "../../types";
 
 const registerService = async (
   registerInfo: UserRegisterInput,
   profileImageUrl: string,
-): Promise<Users> => {
+): Promise<UserSession> => {
   const passwordHash = await hashing(registerInfo.password);
   const foundUser = prisma.users.findFirst({
     where: {
@@ -29,6 +30,13 @@ const registerService = async (
       username: registerInfo.username,
       birthdate: registerInfo.birthdate,
       profileImageUrl,
+    },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      admin: true,
+      profileImageUrl: true,
     },
   });
 };

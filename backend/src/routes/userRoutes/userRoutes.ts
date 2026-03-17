@@ -78,7 +78,13 @@ userRoute.get("/me", async (req, res, next) => {
 
     const user: UserSession | null = await prisma.users.findUnique({
       where: { id: req.session.userId },
-      select: { id: true, username: true, email: true, admin: true },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        admin: true,
+        profileImageUrl: true,
+      },
     });
 
     if (!user) {

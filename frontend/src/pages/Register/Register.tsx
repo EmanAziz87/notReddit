@@ -2,14 +2,20 @@ import { useState } from "react";
 import styles from "./Register.module.css";
 import { useMutation } from "@tanstack/react-query";
 import userService from "../../api/userService";
+import { useNavigate } from "react-router";
 
 const Register = () => {
   const [profileImagePreview, setProfileImagePreview] = useState<string>("");
+
+  const navigate = useNavigate();
 
   const registerUserMutation = useMutation({
     mutationFn: async (formData: FormData) => userService.register(formData),
     onError: () => {
       console.error("error registering user");
+    },
+    onSuccess: () => {
+      navigate("/");
     },
   });
 
@@ -22,7 +28,7 @@ const Register = () => {
     formData.append("password", e.target["register-password-input"].value);
     formData.append(
       "profileImage",
-      e.target["register-profile-pic-input"].value,
+      e.target["register-profile-pic-input"].files[0],
     );
 
     registerUserMutation.mutate(formData);

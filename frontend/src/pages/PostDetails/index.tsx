@@ -1,8 +1,5 @@
 import { useNavigate, useParams } from "react-router";
-import style from "./PostDetails.module.css";
-import { useSetPostReaction } from "../../hooks/useSetPostReaction";
 import { useGetPost } from "../../hooks/useGetPost";
-import { useSetPostFavorite } from "../../hooks/useSetPostFavorite";
 import Comment from "../../components/Comment/Comment";
 import type { CommentsWithReplies, PostDeleteMutation } from "../../types";
 import CommentForm from "../../components/CommentForm/CommentForm";
@@ -138,34 +135,6 @@ const PostDetails = () => {
         ) : (
           <div>{postData.fetchedPost.content}</div>
         )}
-
-        {/* <div className={style["like-dislike-container"]}>
-          <div>
-            <span
-              onClick={() => (loggedIn ? handleLike() : undefined)}
-              className={`icon ${style["like-icon"]}`}
-              style={loggedIn ? { cursor: "pointer" } : undefined}
-            />
-          </div>
-          <div>{postData.fetchedPost.likes}</div>
-          <div>
-            <span
-              onClick={() => (loggedIn ? handleDislike() : undefined)}
-              className={`icon ${style["dislike-icon"]}`}
-              style={loggedIn ? { cursor: "pointer" } : undefined}
-            />
-          </div>
-          <div>
-            <span
-              onClick={() => (loggedIn ? handleFavorite() : undefined)}
-              className={`icon ${style["favorite-icon"]}`}
-              style={{
-                color: postData.fetchedPost.favorited ? "red" : "black",
-                ...(loggedIn ? { cursor: "pointer" } : {}),
-              }}
-            />
-          </div>
-        </div> */}
         <PostReactionArrows
           communityId={communityId!}
           postId={postId!}

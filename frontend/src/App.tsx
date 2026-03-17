@@ -17,6 +17,7 @@ import CreatePostForm from "./pages/CreatPostForm/CreatePostForm";
 import CreateCommunityForm from "./pages/CreateCommunityForm/CreateCommunityForm";
 import EditCommunityForm from "./pages/EditPostForm/EditCommunityForm";
 import Register from "./pages/Register/Register";
+import type { UserSession } from "backend";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -52,7 +53,7 @@ function App() {
 }
 
 function AppContent() {
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<UserSession>({
     queryKey: ["me"],
     queryFn: userService.fetchMe,
   });
