@@ -62,8 +62,8 @@ communityRouter.put(
     const files = req.files as {
       [fieldName: string]: Express.MulterS3.File[];
     };
-    const profileImageUrl = files["communityProfileImage"]?.[0]?.location;
-    const bannerImageUrl = files["communityBannerImage"]?.[0]?.location;
+    const profileImage = files["communityProfileImage"]?.[0];
+    const bannerImage = files["communityBannerImage"]?.[0];
     try {
       const validatedParams: CommunityIdParams = CommunityId.parse(req.params);
       const validatedData: EditCommunityInput = EditCommunity.parse(req.body);
@@ -75,8 +75,8 @@ communityRouter.put(
         req.session.userId,
         validatedData.oldBannerImageUrl,
         validatedData.oldProfileImageUrl,
-        bannerImageUrl,
-        profileImageUrl,
+        bannerImage?.location,
+        profileImage?.location,
       );
 
       res.status(201).json({
@@ -85,7 +85,7 @@ communityRouter.put(
         editedCommunity,
       });
     } catch (err) {
-      const imagesToCleanUp = [profileImageUrl, bannerImageUrl].filter(
+      const imagesToCleanUp = [profileImage?.key, bannerImage?.key].filter(
         (url): url is string => url !== undefined,
       );
       await cleanUpOrphanedImages(imagesToCleanUp);
