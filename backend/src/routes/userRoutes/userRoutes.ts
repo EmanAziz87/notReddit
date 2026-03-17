@@ -7,22 +7,37 @@ import { NotFoundError, UnauthorizedError } from "../../lib/appErrors";
 import { SESSION_COOKIE_NAME } from "../../util/sessionName";
 import userServices from "../../services/userServices/userServices";
 import type { UserSession } from "../../types";
+import uploads from "../../middleware/s3storage";
+import type { MulterS3File } from "../postRoutes/postSchema";
+import { cleanUpOrphanedImages } from "../../lib/s3cleanup";
 
 const userRoute = express.Router();
 
-userRoute.post("/register", async (req, res, next) => {
-  try {
-    const validatedData: UserRegisterInput = UserRegisterSchema.parse(req.body);
-    const user = await userServices.registerService(validatedData);
+userRoute.post(
+  "/register",
+  uploads.single("profileImage"),
+  async (req, res, next) => {
+    const profileImage = req.file as MulterS3File;
 
-    await setSession(req, user);
-    res
-      .status(201)
-      .json({ status: "SUCCESS", message: "Registered and Logged in" });
-  } catch (err) {
-    next(err);
-  }
-});
+    try {
+      const validatedData: UserRegisterInput = UserRegisterSchema.parse(
+        req.body,
+      );
+      const user = await userServices.registerService(
+        validatedData,
+        profileImage.location,
+      );
+
+      await setSession(req, user);
+      res
+        .status(201)
+        .json({ status: "SUCCESS", message: "Registered and Logged in" });
+    } catch (err) {
+      await cleanUpOrphanedImages([profileImage.key]);
+      next(err);
+    }
+  },
+);
 
 userRoute.post("/login", async (req, res, next) => {
   try {

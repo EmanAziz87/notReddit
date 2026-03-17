@@ -84,7 +84,8 @@ model Users {
   passwordHash        String
   admin               Boolean               @default(false)
   email               String                @unique
-  birthdate           DateTime
+  birthdate           DateTime              
+  profileImageUrl     String                @default("")
   followingCount      Int                   @default(0)
   communityCreator    Communities[]
   comments            Comments[]

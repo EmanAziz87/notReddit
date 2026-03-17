@@ -9,6 +9,7 @@ import type { Users } from "../../../generated/prisma/client";
 
 const registerService = async (
   registerInfo: UserRegisterInput,
+  profileImageUrl: string,
 ): Promise<Users> => {
   const passwordHash = await hashing(registerInfo.password);
   const foundUser = prisma.users.findFirst({
@@ -20,12 +21,14 @@ const registerService = async (
   if (!foundUser) {
     throw new ConflictError("That Username or Email is already taken");
   }
+
   return prisma.users.create({
     data: {
       email: registerInfo.email,
       passwordHash: passwordHash,
       username: registerInfo.username,
       birthdate: registerInfo.birthdate,
+      profileImageUrl,
     },
   });
 };

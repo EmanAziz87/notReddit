@@ -19,4 +19,10 @@ const logout = async () => {
   await api.delete(`/users/logout`);
 };
 
-export default { fetchMe, login, logout };
+const register = async (formData: FormData) => {
+  await api.post("/users/register", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export default { fetchMe, login, logout, register };
