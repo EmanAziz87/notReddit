@@ -11,11 +11,12 @@ import HomeFeed from "./pages/HomeFeed";
 import PostDetails from "./pages/PostDetails";
 import Login from "./pages/Login";
 import userService from "./api/userService";
-import Profile from "./pages/Profile";
+import Profile from "./pages/Profile/Profile";
 import Community from "./pages/Community/Community";
 import CreatePostForm from "./pages/CreatPostForm/CreatePostForm";
 import CreateCommunityForm from "./pages/CreateCommunityForm/CreateCommunityForm";
 import EditCommunityForm from "./pages/EditPostForm/EditCommunityForm";
+import Register from "./pages/Register/Register";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -79,6 +80,7 @@ function AppContent() {
           />
         </Route>
         <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

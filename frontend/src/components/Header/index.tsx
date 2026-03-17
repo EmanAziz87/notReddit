@@ -19,7 +19,10 @@ const Header = () => {
           <button onClick={handleUserLogout}>Log out</button>
         </div>
       ) : (
-        <NavLink to="/login">Log in</NavLink>
+        <div>
+          <NavLink to="/login">Log in</NavLink>
+          <NavLink to="/register">Register</NavLink>
+        </div>
       );
     }
   };
