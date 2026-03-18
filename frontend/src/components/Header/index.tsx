@@ -15,6 +15,11 @@ const Header = () => {
     } else {
       return user ? (
         <div>
+          <img
+            className={styles["profile-pic-image"]}
+            src={user.profileImageUrl}
+            alt="profile picture"
+          />
           <NavLink to={`/profile/${user.id}`}>{user.username}</NavLink>
           <button onClick={handleUserLogout}>Log out</button>
         </div>
