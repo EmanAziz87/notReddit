@@ -188,6 +188,15 @@ const setCommentReactionService = async (
   });
 };
 
+const getLikedComments = async (userId: number) => {
+  return prisma.commentReaction.findMany({
+    where: {
+      userId,
+      type: "LIKE",
+    },
+  });
+};
+
 export default {
   createCommentService,
   replyCommentService,
@@ -195,4 +204,5 @@ export default {
   editCommentService,
   deleteCommentService,
   setCommentReactionService,
+  getLikedComments,
 };

@@ -71,6 +71,18 @@ commentRouter.post(
   },
 );
 
+commentRouter.get("/liked", isAuthenticated, async (req, res, next) => {
+  try {
+    const likedComments = await commentServices.getLikedComments(
+      req.session.userId,
+    );
+
+    res.status(200).json({ likedComments });
+  } catch (err) {
+    next(err);
+  }
+});
+
 commentRouter.get("/post/:postId", async (req, res, next) => {
   try {
     const validatedParams: CommentParams = CommentParamsData.parse(req.params);
