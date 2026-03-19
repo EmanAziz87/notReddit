@@ -194,6 +194,9 @@ const getLikedComments = async (userId: number) => {
       userId,
       type: "LIKE",
     },
+    include: {
+      comment: true,
+    },
   });
 };
 

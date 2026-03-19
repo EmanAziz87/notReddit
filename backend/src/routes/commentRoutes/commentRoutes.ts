@@ -91,6 +91,7 @@ commentRouter.get("/post/:postId", async (req, res, next) => {
       validatedParams.postId,
       req.session.userId,
     );
+
     res.status(200).json({
       status: "SUCCESS",
       message: "Successfully fetched all comments for post",
