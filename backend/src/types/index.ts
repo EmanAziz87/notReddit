@@ -57,3 +57,13 @@ export type PostsWithMinimalRelations = Prisma.PostsGetPayload<{
     author: { select: { id: true; username: true; admin: true } };
   };
 }>;
+
+export type LikedCommentWithRelations = Prisma.CommentReactionGetPayload<{
+  include: {
+    comment: {
+      include: {
+        author: { select: { id: true; username: true; admin: true } };
+      };
+    };
+  };
+}>;

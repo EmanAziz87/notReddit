@@ -5,7 +5,10 @@ import {
   postFoundOrThrow,
 } from "../../lib/prismaHelpers";
 import type { CreateCommentInput } from "../../routes/commentRoutes/commentSchema";
-import type { CommentWithRelations } from "./typesCommentServices";
+import type {
+  CommentWithRelations,
+  LikedCommentWithRelations,
+} from "./typesCommentServices";
 
 const createCommentService = async (
   commentInput: CreateCommentInput,
@@ -188,14 +191,20 @@ const setCommentReactionService = async (
   });
 };
 
-const getLikedComments = async (userId: number) => {
+const getLikedComments = async (
+  userId: number,
+): Promise<LikedCommentWithRelations[]> => {
   return prisma.commentReaction.findMany({
     where: {
       userId,
       type: "LIKE",
     },
     include: {
-      comment: true,
+      comment: {
+        include: {
+          author: { select: { id: true, username: true, admin: true } },
+        },
+      },
     },
   });
 };

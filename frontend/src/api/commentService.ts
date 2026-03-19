@@ -40,6 +40,12 @@ const editCommentService = async (
   await api.put(`/comments/post/${postId}/${commentId}/edit`, { content });
 };
 
+const getLikedComments = async () => {
+  const response = await api.get("/comments/liked");
+  console.log(response.data);
+  return response.data.likedComments;
+};
+
 export default {
   fetchCommentsForPost,
   createCommentService,
@@ -47,4 +53,5 @@ export default {
   setCommentReactionService,
   deleteCommentService,
   editCommentService,
+  getLikedComments,
 };
