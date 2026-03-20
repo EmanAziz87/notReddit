@@ -125,6 +125,16 @@ postRouter.get("/community/:communityId", async (req, res, next) => {
   }
 });
 
+postRouter.get("/liked", isAuthenticated, async (req, res, next) => {
+  try {
+    const likedPosts = await postServices.getLikedPosts(req.session.userId);
+
+    res.status(200).json({ likedPosts });
+  } catch (err) {
+    next(err);
+  }
+});
+
 postRouter.put(
   "/community/:communityId/post/:postId",
   isAuthenticated,

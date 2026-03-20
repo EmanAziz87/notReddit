@@ -7,18 +7,21 @@ import {
   postFoundInCommunityOrThrow,
   postFoundOrThrow,
   postMadeByUserOrThrow,
+  userExistsOrThrow,
 } from "../../lib/prismaHelpers";
 import type { CreatePostInput } from "../../routes/postRoutes/postSchema";
 import type { UserNoSensitiveInfo } from "../../types/express-session";
 import s3Client from "../../util/s3client";
 import type { FollowedCommunitiesWithRelations } from "./typesPostServices";
 import type {
+  LikedPostWithRelations,
   PostsWithExtraData,
   PostsWithMinimalRelations,
   PostsWithRelations,
   PostsWithRelationsNoComments,
 } from "../../types";
 import type { ReactionType } from "../../../generated/prisma/enums";
+import { id } from "zod/v4/locales";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -367,6 +370,25 @@ const deletePostService = async (
   }
 };
 
+const getLikedPosts = async (
+  userId: number,
+): Promise<LikedPostWithRelations[]> => {
+  await userExistsOrThrow(userId);
+  return prisma.postReaction.findMany({
+    where: {
+      userId,
+      type: "LIKE",
+    },
+    include: {
+      post: {
+        include: {
+          author: { select: { id: true, username: true, admin: true } },
+        },
+      },
+    },
+  });
+};
+
 export default {
   createPostService,
   getPostService,
@@ -377,4 +399,5 @@ export default {
   setPostReactionService,
   setFavoritePostService,
   deletePostService,
+  getLikedPosts,
 };

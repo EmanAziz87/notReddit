@@ -67,3 +67,13 @@ export type LikedCommentWithRelations = Prisma.CommentReactionGetPayload<{
     };
   };
 }>;
+
+export type LikedPostWithRelations = Prisma.PostReactionGetPayload<{
+  include: {
+    post: {
+      include: {
+        author: { select: { id: true; username: true; admin: true } };
+      };
+    };
+  };
+}>;
