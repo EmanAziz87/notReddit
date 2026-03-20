@@ -55,6 +55,11 @@ const editPost = async (
   await api.put(`/posts/community/${communityId}/post/${postId}`, { content });
 };
 
+const getLikedPosts = async () => {
+  const response = await api.get("/posts/liked");
+  return response.data.likedPosts;
+};
+
 export default {
   fetchAllPosts,
   fetchPost,
@@ -64,4 +69,5 @@ export default {
   createPost,
   fetchCommunityPosts,
   editPost,
+  getLikedPosts,
 };
