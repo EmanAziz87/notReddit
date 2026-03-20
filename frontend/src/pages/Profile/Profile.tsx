@@ -1,13 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import commentService from "../../api/commentService";
 import type {
   FavoritedPostWithRelations,
   LikedCommentWithRelations,
   LikedPostWithRelations,
+  UserSession,
 } from "backend";
 import postService from "../../api/postService";
+import styles from "./Profile.module.css";
 
 const Profile = () => {
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData<UserSession>(["me"]);
   const {
     data: likedCommentsData,
     isLoading: likedCommentsLoading,
@@ -52,6 +56,19 @@ const Profile = () => {
 
   return (
     <div>
+      <br />
+      <div style={{ border: "1px solid black" }}>
+        <h2>{currentUser?.username}</h2>
+        <div>{currentUser?.email}</div>
+        <div>
+          <img
+            src={`${currentUser?.profileImageUrl}`}
+            alt="Profile Image"
+            className={styles["profile-pic-image"]}
+          />
+        </div>
+      </div>
+      <br />
       <div>
         <h3>Liked Comments</h3>
         <ul>
