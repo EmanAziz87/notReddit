@@ -135,6 +135,17 @@ postRouter.get("/liked", isAuthenticated, async (req, res, next) => {
   }
 });
 
+postRouter.get("/favorited", isAuthenticated, async (req, res, next) => {
+  try {
+    const favoritedPosts = await postServices.getFavoritedPosts(
+      req.session.userId,
+    );
+    res.status(200).json({ favoritedPosts });
+  } catch (err) {
+    next(err);
+  }
+});
+
 postRouter.put(
   "/community/:communityId/post/:postId",
   isAuthenticated,

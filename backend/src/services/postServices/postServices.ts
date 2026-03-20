@@ -14,6 +14,7 @@ import type { UserNoSensitiveInfo } from "../../types/express-session";
 import s3Client from "../../util/s3client";
 import type { FollowedCommunitiesWithRelations } from "./typesPostServices";
 import type {
+  FavoritedPostWithRelations,
   LikedPostWithRelations,
   PostsWithExtraData,
   PostsWithMinimalRelations,
@@ -389,6 +390,25 @@ const getLikedPosts = async (
   });
 };
 
+const getFavoritedPosts = async (
+  userId: number,
+): Promise<FavoritedPostWithRelations[]> => {
+  await userExistsOrThrow(userId);
+
+  return prisma.favoritedPosts.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      post: {
+        include: {
+          author: { select: { id: true, username: true, admin: true } },
+        },
+      },
+    },
+  });
+};
+
 export default {
   createPostService,
   getPostService,
@@ -400,4 +420,5 @@ export default {
   setFavoritePostService,
   deletePostService,
   getLikedPosts,
+  getFavoritedPosts,
 };

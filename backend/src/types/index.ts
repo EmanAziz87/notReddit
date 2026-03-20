@@ -77,3 +77,13 @@ export type LikedPostWithRelations = Prisma.PostReactionGetPayload<{
     };
   };
 }>;
+
+export type FavoritedPostWithRelations = Prisma.FavoritedPostsGetPayload<{
+  include: {
+    post: {
+      include: {
+        author: { select: { id: true; username: true; admin: true } };
+      };
+    };
+  };
+}>;
