@@ -8,10 +8,23 @@ import type {
 } from "backend";
 import postService from "../../api/postService";
 import styles from "./Profile.module.css";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData<UserSession>(["me"]);
+  const [profileImagePreview, setProfileImagePreview] = useState<
+    string | undefined
+  >(currentUser?.profileImageUrl);
+  const [showConfirmProfileImageButton, setShowConfirmProfileImageButton] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfileImagePreview(currentUser.profileImageUrl);
+    }
+  }, [currentUser?.profileImageUrl]);
+
   const {
     data: likedCommentsData,
     isLoading: likedCommentsLoading,
@@ -39,6 +52,16 @@ const Profile = () => {
     queryKey: ["favoritedPosts"],
   });
 
+  const handleProfileImagePreview = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = e.currentTarget.files!;
+
+    const imageUrl = URL.createObjectURL(files[0]);
+    setProfileImagePreview(imageUrl);
+    setShowConfirmProfileImageButton(!showConfirmProfileImageButton);
+  };
+
   if (likedCommentsLoading && likedPostsLoading && favoritedPostsLoading) {
     return <div>Loading...</div>;
   } else {
@@ -61,11 +84,18 @@ const Profile = () => {
         <h2>{currentUser?.username}</h2>
         <div>
           <img
-            src={`${currentUser?.profileImageUrl}`}
+            src={`${profileImagePreview}`}
             alt="Profile Image"
             className={styles["profile-pic-image"]}
           />
+          <form>
+            <input type="file" onChange={handleProfileImagePreview} />
+            {showConfirmProfileImageButton && (
+              <button type="submit">Confirm New Profile Image</button>
+            )}
+          </form>
         </div>
+
         <div>Email: {currentUser?.email}</div>
         <div>Birthdate: {new Date(currentUser?.birthdate!).toDateString()}</div>
       </div>
