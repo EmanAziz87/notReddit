@@ -82,6 +82,7 @@ userRoute.get("/me", async (req, res, next) => {
         id: true,
         username: true,
         email: true,
+        birthdate: true,
         admin: true,
         profileImageUrl: true,
       },

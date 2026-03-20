@@ -46,6 +46,7 @@ export type UserSession = Prisma.UsersGetPayload<{
     username: true;
     email: true;
     admin: true;
+    birthdate: true;
     profileImageUrl: true;
   };
 }>;

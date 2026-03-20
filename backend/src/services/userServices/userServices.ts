@@ -35,6 +35,7 @@ const registerService = async (
       id: true,
       email: true,
       username: true,
+      birthdate: true,
       admin: true,
       profileImageUrl: true,
     },
