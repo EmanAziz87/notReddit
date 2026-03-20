@@ -60,6 +60,11 @@ const getLikedPosts = async () => {
   return response.data.likedPosts;
 };
 
+const getFavoritedPosts = async () => {
+  const response = await api.get("/posts/favorited");
+  return response.data.favoritedPosts;
+};
+
 export default {
   fetchAllPosts,
   fetchPost,
@@ -70,4 +75,5 @@ export default {
   fetchCommunityPosts,
   editPost,
   getLikedPosts,
+  getFavoritedPosts,
 };

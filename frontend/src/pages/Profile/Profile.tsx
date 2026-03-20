@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import commentService from "../../api/commentService";
 import type {
+  FavoritedPostWithRelations,
   LikedCommentWithRelations,
   LikedPostWithRelations,
 } from "backend";
@@ -25,14 +26,26 @@ const Profile = () => {
     queryKey: ["likedPosts"],
   });
 
-  if (likedCommentsLoading && likedPostsLoading) {
+  const {
+    data: favoritedPostsData,
+    isLoading: favoritedPostsLoading,
+    error: favoritedPostsError,
+  } = useQuery<FavoritedPostWithRelations[]>({
+    queryFn: postService.getFavoritedPosts,
+    queryKey: ["favoritedPosts"],
+  });
+
+  if (likedCommentsLoading && likedPostsLoading && favoritedPostsLoading) {
     return <div>Loading...</div>;
+  } else {
+    console.log("favorited posts: ", favoritedPostsData);
   }
-  if (likedCommentsError || likedPostsError) {
+  if (likedCommentsError || likedPostsError || favoritedPostsError) {
     return (
       <div>
         Error fetching liked comments: {likedCommentsError?.message} | Error
-        fetching liked posts: {likedPostsError?.message}
+        fetching liked posts: {likedPostsError?.message} | Error fetching
+        favorited posts: {favoritedPostsError?.message}
       </div>
     );
   }
@@ -82,6 +95,32 @@ const Profile = () => {
             })
           ) : (
             <div>No Liked Posts</div>
+          )}
+        </ul>
+      </div>
+      <div>
+        <h3>Favorited Posts</h3>
+        <ul>
+          {favoritedPostsData && favoritedPostsData.length > 0 ? (
+            favoritedPostsData.map((favoritedData) => {
+              return (
+                <div
+                  key={favoritedData.postId}
+                  style={{ border: "1px solid black" }}
+                >
+                  <img
+                    src={`${favoritedData.post.mediaUrl[0]}`}
+                    alt="Post Image"
+                    width={100}
+                    height={100}
+                  />
+                  <div>{favoritedData.post.author.username}</div>
+                  <div>{favoritedData.post.content}</div>
+                </div>
+              );
+            })
+          ) : (
+            <div>No Favorited Posts</div>
           )}
         </ul>
       </div>
