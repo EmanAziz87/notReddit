@@ -42,7 +42,7 @@ const Profile = () => {
   if (likedCommentsLoading && likedPostsLoading && favoritedPostsLoading) {
     return <div>Loading...</div>;
   } else {
-    console.log("favorited posts: ", favoritedPostsData);
+    console.log("date: ");
   }
   if (likedCommentsError || likedPostsError || favoritedPostsError) {
     return (
@@ -59,7 +59,6 @@ const Profile = () => {
       <br />
       <div style={{ border: "1px solid black" }}>
         <h2>{currentUser?.username}</h2>
-        <div>{currentUser?.email}</div>
         <div>
           <img
             src={`${currentUser?.profileImageUrl}`}
@@ -67,6 +66,8 @@ const Profile = () => {
             className={styles["profile-pic-image"]}
           />
         </div>
+        <div>Email: {currentUser?.email}</div>
+        <div>Birthdate: {new Date(currentUser?.birthdate!).toDateString()}</div>
       </div>
       <br />
       <div>
