@@ -61,7 +61,7 @@ const editProfileImageService = async (
 ): Promise<void> => {
   await userExistsOrThrow(userId);
 
-  prisma.users.update({
+  await prisma.users.update({
     where: {
       id: userId,
     },

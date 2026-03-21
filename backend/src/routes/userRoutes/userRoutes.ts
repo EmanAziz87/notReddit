@@ -99,7 +99,7 @@ userRoute.get("/me", async (req, res, next) => {
   }
 });
 
-userRoute.post(
+userRoute.put(
   "/profile/edit",
   isAuthenticated,
   uploads.single("profileImage"),
@@ -110,6 +110,7 @@ userRoute.post(
         req.session.userId,
         profileImageFile.location,
       );
+
       res.status(201);
     } catch (err) {
       await cleanUpOrphanedImages([profileImageFile.key]);
