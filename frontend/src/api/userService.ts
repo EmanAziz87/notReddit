@@ -25,4 +25,9 @@ const register = async (formData: FormData) => {
   });
 };
 
-export default { fetchMe, login, logout, register };
+const editProfileImage = async (formData: FormData): Promise<void> => {
+  await api.put("/users/profile/edit", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+export default { fetchMe, login, logout, register, editProfileImage };

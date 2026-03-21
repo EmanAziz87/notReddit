@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import commentService from "../../api/commentService";
 import type {
   FavoritedPostWithRelations,
@@ -9,6 +9,7 @@ import type {
 import postService from "../../api/postService";
 import styles from "./Profile.module.css";
 import { useEffect, useState } from "react";
+import userService from "../../api/userService";
 
 const Profile = () => {
   const queryClient = useQueryClient();
@@ -52,6 +53,29 @@ const Profile = () => {
     queryKey: ["favoritedPosts"],
   });
 
+  const editProfileImageMutation = useMutation({
+    mutationFn: (formData: FormData) => userService.editProfileImage(formData),
+    onError: () => {
+      console.error("Error editing profile");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+  });
+
+  const handleEditProfileImageSubmit = (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append(
+      "profileImage",
+      e.target["edit-profile-image-input"].files[0],
+    );
+    editProfileImageMutation.mutate(formData);
+    setShowConfirmProfileImageButton(false);
+  };
+
   const handleProfileImagePreview = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -88,8 +112,12 @@ const Profile = () => {
             alt="Profile Image"
             className={styles["profile-pic-image"]}
           />
-          <form>
-            <input type="file" onChange={handleProfileImagePreview} />
+          <form onSubmit={(e) => handleEditProfileImageSubmit(e)}>
+            <input
+              type="file"
+              onChange={handleProfileImagePreview}
+              id="edit-profile-image-input"
+            />
             {showConfirmProfileImageButton && (
               <button type="submit">Confirm New Profile Image</button>
             )}
