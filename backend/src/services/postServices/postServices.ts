@@ -21,8 +21,6 @@ import type {
   PostsWithRelations,
   PostsWithRelationsNoComments,
 } from "../../types";
-import type { ReactionType } from "../../../generated/prisma/enums";
-import { id } from "zod/v4/locales";
 
 const createPostService = async (
   postInputData: CreatePostInput,
@@ -49,19 +47,55 @@ const createPostService = async (
   });
 };
 
-const getAllPosts = async (): Promise<PostsWithMinimalRelations[]> => {
-  return prisma.posts.findMany({
-    include: {
-      community: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          admin: true,
+const getAllPosts = async (
+  userId: number | undefined,
+): Promise<PostsWithRelationsNoComments[]> => {
+  const communityPosts =
+    (await prisma.posts.findMany({
+      include: {
+        community: true,
+        favoritedPosts: userId
+          ? {
+              where: {
+                userId,
+              },
+              take: 1,
+            }
+          : false,
+        postReaction: userId ? { where: { userId }, take: 1 } : false,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            admin: true,
+          },
         },
       },
-    },
-  });
+    })) || [];
+
+  const communityPostsWithFavorited: PostsWithRelationsNoComments[] = [];
+
+  if (userId) {
+    communityPosts.forEach((post) => {
+      let userReaction: "liked" | "disliked" | null = null;
+      let favorited = false;
+      if (post.favoritedPosts?.length > 0) {
+        favorited = true;
+      }
+
+      if (post.postReaction?.[0]?.type === "LIKE") {
+        userReaction = "liked";
+      }
+
+      if (post.postReaction?.[0]?.type === "DISLIKE") {
+        userReaction = "disliked";
+      }
+
+      communityPostsWithFavorited.push({ ...post, favorited, userReaction });
+    });
+  }
+
+  return communityPostsWithFavorited;
 };
 
 const getPostService = async (

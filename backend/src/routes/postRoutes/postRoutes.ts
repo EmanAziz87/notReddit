@@ -92,10 +92,10 @@ postRouter.get(
   },
 );
 
-postRouter.get("/", async (_req, res, next) => {
+postRouter.get("/", async (req, res, next) => {
   try {
     const allFetchedPosts: PostsWithMinimalRelations[] =
-      await postServices.getAllPosts();
+      await postServices.getAllPosts(req.session.userId);
 
     res.status(200).json({
       status: "SUCCESSFULL",

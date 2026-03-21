@@ -15,15 +15,29 @@ export const useSetPostReaction = (
     const communityPostsCache = queryClient.getQueryData<
       PostsWithRelationsNoComments[]
     >(["communityPosts", communityId]);
+    const homefeedPostsCache = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["allPosts"]);
     const postFromCommunityCache = communityPostsCache?.find(
       (post) => String(post.id) === postId,
     );
 
-    if (!cached && !postFromCommunityCache) return;
+    const postFromHomeFeedPostsCache = homefeedPostsCache?.find(
+      (post) => String(post.id) === postId,
+    );
 
-    let likes = cached?.fetchedPost.likes || postFromCommunityCache?.likes || 0;
+    if (!cached && !postFromCommunityCache && !postFromHomeFeedPostsCache)
+      return;
+
+    let likes =
+      cached?.fetchedPost.likes ||
+      postFromCommunityCache?.likes ||
+      postFromHomeFeedPostsCache?.likes ||
+      0;
     const prevReaction =
-      cached?.fetchedPost.userReaction || postFromCommunityCache?.userReaction;
+      cached?.fetchedPost.userReaction ||
+      postFromCommunityCache?.userReaction ||
+      postFromHomeFeedPostsCache?.userReaction;
 
     if (reaction === "LIKE") {
       if (prevReaction === "disliked") likes += 1;
@@ -59,6 +73,32 @@ export const useSetPostReaction = (
       queryClient.setQueryData(
         ["communityPosts", communityId],
         communityPostsCache?.map((post) => {
+          if (String(post.id) === postId) {
+            return {
+              ...post,
+              likes,
+              userReaction:
+                reaction === "NONE"
+                  ? null
+                  : reaction === "LIKE" && prevReaction === "disliked"
+                    ? null
+                    : reaction === "DISLIKE" && prevReaction === "liked"
+                      ? null
+                      : reaction === "LIKE"
+                        ? "liked"
+                        : "disliked",
+            };
+          } else {
+            return post;
+          }
+        }),
+      );
+    }
+
+    if (postFromHomeFeedPostsCache) {
+      queryClient.setQueryData(
+        ["allPosts"],
+        homefeedPostsCache?.map((post) => {
           if (String(post.id) === postId) {
             return {
               ...post,
@@ -118,12 +158,20 @@ export const useSetPostReaction = (
       PostsWithRelationsNoComments[]
     >(["communityPosts", communityId]);
 
+    const homefeedPostsCache = queryClient.getQueryData<
+      PostsWithRelationsNoComments[]
+    >(["allPosts"]);
+
     let current;
 
     if (cached) {
       current = cached?.fetchedPost.userReaction;
     } else if (communityPostsCache) {
       current = communityPostsCache?.find(
+        (post) => String(post.id) === postId,
+      )?.userReaction;
+    } else if (homefeedPostsCache) {
+      current = homefeedPostsCache?.find(
         (post) => String(post.id) === postId,
       )?.userReaction;
     }
@@ -149,9 +197,14 @@ export const useSetPostReaction = (
         >(["communityPosts", communityId])
         ?.find((post) => String(post.id) === postId);
 
+      const finalCachedHomeFeedPost = queryClient
+        .getQueryData<PostsWithRelationsNoComments[]>(["allPosts"])
+        ?.find((post) => String(post.id) === postId);
+
       const finalReaction =
         finalCached?.fetchedPost.userReaction ||
-        finalCachedCommunityPost?.userReaction;
+        finalCachedCommunityPost?.userReaction ||
+        finalCachedHomeFeedPost?.userReaction;
       setReactionMutation.mutate({
         communityId: communityId!,
         postId: postId!,
