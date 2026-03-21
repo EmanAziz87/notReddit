@@ -7,6 +7,7 @@ import { compareHash, hashing } from "../../util/hashing";
 import { ConflictError, UnauthorizedError } from "../../lib/appErrors";
 import type { Users } from "../../../generated/prisma/client";
 import type { UserSession } from "../../types";
+import { userExistsOrThrow } from "../../lib/prismaHelpers";
 
 const registerService = async (
   registerInfo: UserRegisterInput,
@@ -54,4 +55,20 @@ const loginService = async (loginInfo: UserLoginInput): Promise<Users> => {
   return user;
 };
 
-export default { registerService, loginService };
+const editProfileImageService = async (
+  userId: number,
+  profileImageUrl: string,
+): Promise<void> => {
+  await userExistsOrThrow(userId);
+
+  prisma.users.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      profileImageUrl,
+    },
+  });
+};
+
+export default { registerService, loginService, editProfileImageService };

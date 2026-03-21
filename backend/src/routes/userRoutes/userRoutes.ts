@@ -10,6 +10,7 @@ import type { UserSession } from "../../types";
 import uploads from "../../middleware/s3storage";
 import type { MulterS3File } from "../postRoutes/postSchema";
 import { cleanUpOrphanedImages } from "../../lib/s3cleanup";
+import { isAuthenticated } from "../../middleware/isAuthenticated";
 
 const userRoute = express.Router();
 
@@ -97,5 +98,24 @@ userRoute.get("/me", async (req, res, next) => {
     next(err);
   }
 });
+
+userRoute.post(
+  "/profile/edit",
+  isAuthenticated,
+  uploads.single("profileImage"),
+  async (req, res, next) => {
+    const profileImageFile = req.file as MulterS3File;
+    try {
+      await userServices.editProfileImageService(
+        req.session.userId,
+        profileImageFile.location,
+      );
+      res.status(201);
+    } catch (err) {
+      await cleanUpOrphanedImages([profileImageFile.key]);
+      next(err);
+    }
+  },
+);
 
 export default userRoute;
